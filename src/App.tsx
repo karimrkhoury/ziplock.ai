@@ -110,6 +110,13 @@ const getUniqueFileName = (existingNames: Set<string>, originalName: string): st
 // Add type for donation messages
 type DonationMessage = typeof translations[Language]['donation']['messages'][number];
 
+// Add this type for the compression stats
+interface CompressionStats {
+  originalSize: number;
+  compressedSize: number;
+  processingTime: number;
+}
+
 function App(): JSX.Element {
   // Basic states
   const [language, setLanguage] = useState<Language>(Language.EN);
@@ -120,11 +127,7 @@ function App(): JSX.Element {
   const [error, setError] = useState<string | null>(null);
   const [zipBlob, setZipBlob] = useState<Blob | null>(null);
   const [startTime, setStartTime] = useState<number>(0);
-  const [compressionStats, setCompressionStats] = useState<{
-    originalSize: number;
-    compressedSize: number;
-    processingTime: number;
-  } | null>(null);
+  const [compressionStats, setCompressionStats] = useState<CompressionStats | null>(null);
   const [donationMessage, setDonationMessage] = useState<DonationMessage>(translations[Language.EN].donation.messages[0]);
   const [isResetting, setIsResetting] = useState(false);
   const [removingFileId, setRemovingFileId] = useState<number | null>(null);
@@ -257,11 +260,12 @@ function App(): JSX.Element {
       const processingTime = (endTime - startTime) / 1000;
       const originalSize = files.reduce((acc, file) => acc + file.size, 0);
       
-      setCompressionStats({
+      const stats: CompressionStats = {
         originalSize,
         compressedSize: content.size,
         processingTime
-      });
+      };
+      setCompressionStats(stats);
       setZipBlob(content);
       setIsCompleted(true);
       

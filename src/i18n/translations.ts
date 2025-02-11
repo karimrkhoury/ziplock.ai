@@ -3,6 +3,12 @@ export enum Language {
   AR = 'ar'
 }
 
+// Add type for the translations
+export type TranslationType = typeof translations[Language];
+
+// Add type for donation messages
+export type DonationMessage = TranslationType['donation']['messages'][number];
+
 export const translations = {
   en: {
     tagline: {
