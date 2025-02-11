@@ -107,8 +107,8 @@ const getUniqueFileName = (existingNames: Set<string>, originalName: string): st
   return newName;
 };
 
-// Add type for donation messages
-type DonationMessage = typeof translations[Language]['donation']['messages'][number];
+// First, let's update the DonationMessage type to be more specific
+type DonationMessage = (typeof translations)[Language]['donation']['messages'][number];
 
 // Add this type for the compression stats
 interface CompressionStats {
@@ -139,21 +139,23 @@ function App(): JSX.Element {
 
   const t = translations[language];
 
-  // Update the useEffect
+  // Then update the useEffect that handles donation messages
   useEffect(() => {
-    setDonationMessage(t.donation.messages[0]);
+    // Set initial message
+    setDonationMessage(translations[language].donation.messages[0]);
     
     const interval = setInterval(() => {
-      setDonationMessage((prevMessage: DonationMessage) => {
-        const messages = t.donation.messages;
-        const currentIndex = messages.indexOf(prevMessage);
+      setDonationMessage((prevMessage) => {
+        // Get messages for current language
+        const messages = translations[language].donation.messages;
+        const currentIndex = messages.indexOf(prevMessage as typeof messages[number]);
         const nextIndex = (currentIndex + 1) % messages.length;
         return messages[nextIndex];
       });
     }, 4000);
     
     return () => clearInterval(interval);
-  }, [language, t.donation.messages]);
+  }, [language]);
 
   // Move the useEffect inside the component
   useEffect(() => {
