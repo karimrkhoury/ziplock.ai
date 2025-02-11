@@ -296,6 +296,18 @@ function App(): JSX.Element {
     setTimeout(() => setSnackbarMessage(null), 3500); // Changed from 5000 to 3500ms
   };
 
+  // Keep the download functionality simple with just local blob download
+  const handleDownload = () => {
+    if (zipBlob) {
+      const url = URL.createObjectURL(zipBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'ziplocked-files.zip';
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+  };
+
   return (
     <ThemeProvider>
       <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
@@ -656,16 +668,7 @@ function App(): JSX.Element {
                   {/* Action Buttons */}
                   <div className="flex gap-3">
                     <button
-                      onClick={() => {
-                        if (zipBlob) {
-                          const url = URL.createObjectURL(zipBlob);
-                          const link = document.createElement('a');
-                          link.href = url;
-                          link.download = 'ziplocked-files.zip';
-                          link.click();
-                          URL.revokeObjectURL(url);
-                        }
-                      }}
+                      onClick={handleDownload}
                       className="flex-1 py-2.5 bg-green-500/10 dark:bg-green-400/10
                         text-green-600 dark:text-green-300 rounded-lg font-medium
                         hover:bg-green-500/20 dark:hover:bg-green-400/20
