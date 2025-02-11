@@ -1,5 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import type { FirebaseApp } from 'firebase/app';
+import type { StorageReference } from 'firebase/storage';
 
 const firebaseConfig = {
   // Your Firebase config here

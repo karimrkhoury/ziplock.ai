@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
+import type { StorageReference } from 'firebase/storage';
+
+interface RouteParams {
+  fileId: string;
+}
+
+const { fileId } = useParams<RouteParams>();
 
 export const DownloadPage = () => {
-  const { fileId } = useParams();
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 

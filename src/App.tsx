@@ -60,11 +60,10 @@ const generateSecurePassword = () => {
 };
 
 // Update the message selection to be more stable
-const getProgressMessage = (progress: number): string => {
+const getProgressMessage = (progress: number, t: typeof translations[Language]): string => {
   const messages = t.compression.messages;
-  // Change message less frequently - only at specific progress points
   const index = Math.min(
-    Math.floor(progress / 20), // Change message every 20%
+    Math.floor(progress / 20),
     messages.length - 1
   );
   return messages[index];
@@ -108,9 +107,12 @@ const getUniqueFileName = (existingNames: Set<string>, originalName: string): st
   return newName;
 };
 
+// Add type for donation messages
+type DonationMessage = typeof translations[Language]['donation']['messages'][number];
+
 function App(): JSX.Element {
   // Basic states
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguage] = useState<Language>(Language.EN);
   const [files, setFiles] = useState<File[]>([]);
   const [password, setPassword] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -123,7 +125,7 @@ function App(): JSX.Element {
     compressedSize: number;
     processingTime: number;
   } | null>(null);
-  const [donationMessage, setDonationMessage] = useState(translations[language].donation.messages[0]);
+  const [donationMessage, setDonationMessage] = useState<DonationMessage>(translations[Language.EN].donation.messages[0]);
   const [isResetting, setIsResetting] = useState(false);
   const [removingFileId, setRemovingFileId] = useState<number | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -134,18 +136,18 @@ function App(): JSX.Element {
 
   const t = translations[language];
 
-  // Add this useEffect to handle message rotation
+  // Update the useEffect
   useEffect(() => {
-    // Reset to first message in new language when language changes
     setDonationMessage(t.donation.messages[0]);
     
     const interval = setInterval(() => {
-      setDonationMessage(prevMessage => {
-        const currentIndex = t.donation.messages.indexOf(prevMessage);
-        const nextIndex = (currentIndex + 1) % t.donation.messages.length;
-        return t.donation.messages[nextIndex];
+      setDonationMessage((prevMessage: DonationMessage) => {
+        const messages = t.donation.messages;
+        const currentIndex = messages.indexOf(prevMessage);
+        const nextIndex = (currentIndex + 1) % messages.length;
+        return messages[nextIndex];
       });
-    }, 4000); // Change message every 4 seconds
+    }, 4000);
     
     return () => clearInterval(interval);
   }, [language, t.donation.messages]);
@@ -194,7 +196,7 @@ function App(): JSX.Element {
             const displayProgress = Math.min(80, Math.floor(progress * 0.8));
             setProgress(displayProgress);
             if (progress % 20 < 1) {
-              setProgressMessage(getProgressMessage(progress));
+              setProgressMessage(getProgressMessage(progress, t));
             }
           },
           2000
@@ -224,14 +226,13 @@ function App(): JSX.Element {
           const uniqueName = getUniqueFileName(usedNames, file.name);
           
           await zipWriter.add(uniqueName, fileReader, {
-            onprogress: (current, total) => {
+            onprogress: async (current: number, total: number) => {
               const fileProgress = (current / total) * file.size;
               const totalProgress = ((processedSize + fileProgress) / totalSize) * 100;
-              // Ensure we only show whole numbers between 80-100
               const displayProgress = Math.min(100, Math.max(80, Math.floor(80 + (totalProgress * 0.2))));
               setProgress(displayProgress);
               if (Math.floor(totalProgress / 20) !== Math.floor((totalProgress - 1) / 20)) {
-                setProgressMessage(getProgressMessage(totalProgress));
+                setProgressMessage(getProgressMessage(totalProgress, t));
               }
             }
           });
@@ -610,35 +611,44 @@ function App(): JSX.Element {
                     <div className="text-center p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl">
                       <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t.stats.originalSize}</div>
                       <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                        {compressionStats.originalSize < 1024 ? (
-                          `${compressionStats.originalSize} B`
-                        ) : (
-                          formatFileSize(compressionStats.originalSize, language)
+                        {compressionStats && (
+                          compressionStats.originalSize < 1024 
+                            ? `${compressionStats.originalSize} B`
+                            : formatFileSize(compressionStats.originalSize, language)
                         )}
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {t.fileSize[compressionStats.originalSize < 1024 ? 'tiny' :
+                        {compressionStats && t.fileSize[
+                          compressionStats.originalSize < 1024 ? 'tiny' :
                           compressionStats.originalSize < 1024 * 1024 ? 'small' :
-                          compressionStats.originalSize < 10 * 1024 * 1024 ? 'medium' : 'big']}
+                          compressionStats.originalSize < 10 * 1024 * 1024 ? 'medium' : 'big'
+                        ]}
                       </div>
                     </div>
                     <div className="text-center p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl">
                       <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t.stats.saved}</div>
                       <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                        {Math.round((1 - compressionStats.compressedSize / compressionStats.originalSize) * 100)}%
+                        {compressionStats && 
+                          Math.round((1 - compressionStats.compressedSize / compressionStats.originalSize) * 100)}%
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {t.compression[compressionStats.compressedSize < compressionStats.originalSize / 2 ? 'superSquish' : 'nice']}
+                        {compressionStats && t.compression[
+                          compressionStats.compressedSize < compressionStats.originalSize / 2 
+                            ? 'superSquish' 
+                            : 'nice'
+                        ]}
                       </div>
                     </div>
                     <div className="text-center p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl">
                       <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t.stats.processingTime}</div>
                       <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                        {(compressionStats.processingTime).toFixed(1)}s
+                        {compressionStats && compressionStats.processingTime.toFixed(1)}s
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {t.speed[compressionStats.processingTime < 1 ? 'zoom' :
-                          compressionStats.processingTime < 2 ? 'fast' : 'done']}
+                        {compressionStats && t.speed[
+                          compressionStats.processingTime < 1 ? 'zoom' :
+                          compressionStats.processingTime < 2 ? 'fast' : 'done'
+                        ]}
                       </div>
                     </div>
                   </div>

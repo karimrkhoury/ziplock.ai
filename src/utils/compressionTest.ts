@@ -1,3 +1,5 @@
+import JSZip from 'jszip';
+
 async function testCompression(file: File, level: number): Promise<number> {
   const zip = new JSZip();
   zip.file(file.name, file, {

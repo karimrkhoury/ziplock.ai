@@ -1,4 +1,7 @@
-export type Language = 'en' | 'ar';
+export enum Language {
+  EN = 'en',
+  AR = 'ar'
+}
 
 export const translations = {
   en: {
@@ -318,8 +321,6 @@ export const translations = {
     }
   }
 } as const;
-
-export type Language = keyof typeof translations;
 
 export const getValidationMessage = (code: string, size: number, lang: Language): string => {
   switch (code) {

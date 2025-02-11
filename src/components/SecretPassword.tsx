@@ -8,6 +8,13 @@ interface SecretPasswordProps {
   lang: Language
 }
 
+interface TranslationType {
+  title: string;
+  funnyPlaceholder: string;
+  savedPassword: string;
+  placeholder: string;
+}
+
 function SecretPassword({ password, onPasswordChange, onGeneratePassword, lang }: SecretPasswordProps) {
   const [showPassword, setShowPassword] = useState(false)
   const t = translations[lang]
@@ -22,7 +29,7 @@ function SecretPassword({ password, onPasswordChange, onGeneratePassword, lang }
           type={showPassword ? 'text' : 'password'}
           value={password}
           onChange={(e) => onPasswordChange(e.target.value)}
-          placeholder={t.secretPassword.placeholder}
+          placeholder={t.secretPassword.funnyPlaceholder}
           className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 
             bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
             focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent

@@ -8,7 +8,7 @@ interface LanguageSwitcherProps {
 export function LanguageSwitcher({ currentLang, onLanguageChange }: LanguageSwitcherProps) {
   return (
     <button
-      onClick={() => onLanguageChange(currentLang === 'en' ? 'ar' : 'en')}
+      onClick={() => onLanguageChange(currentLang === Language.EN ? Language.AR : Language.EN)}
       className="p-2 rounded-lg 
         bg-gray-100 dark:bg-gray-800 
         text-gray-800 dark:text-gray-200
