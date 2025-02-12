@@ -143,6 +143,10 @@ const App = () => {
   const [progressMessage, setProgressMessage] = useState('');
   const [funMessage, setFunMessage] = useState('');
   const [prevMessage, setPrevMessage] = useState<DonationMessage>(DONATION_MESSAGES[0]);
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    // Check localStorage and default to dark if not set
+    return localStorage.theme === 'light' ? 'light' : 'dark';
+  });
 
   const t = translations[language];
 
@@ -332,6 +336,14 @@ const App = () => {
     } while (newIndex === currentIndex);
     
     setPrevMessage(DONATION_MESSAGES[newIndex]);
+  };
+
+  // Update your theme toggle function
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.theme = newTheme;
+    document.documentElement.classList.toggle('dark');
   };
 
   return (
