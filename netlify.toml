@@ -1,7 +1,11 @@
 [build]
-  command = "npm run build"
+  command = "CI=false npm run build"
   publish = "dist"
   node_version = "18.0.0"
+
+[build.environment]
+  NODE_VERSION = "18.0.0"
+  NPM_FLAGS = "--no-audit --no-fund"
 
 [[redirects]]
   from = "/*"
@@ -21,4 +25,7 @@
 [[headers]]
   for = "/*.mjs"
   [headers.values]
-    Content-Type = "text/javascript" 
+    Content-Type = "text/javascript"
+
+[build.processing]
+  skip_processing = false 
