@@ -204,10 +204,10 @@ const App = () => {
     }
 
     try {
+      const startTime = Date.now();
       setIsProcessing(true);
       setProgress(0);
       setError(null);
-      const startTime = Date.now();
       
       // Always start with a minimum 2-second simulation
       const simulationPromise = new Promise<void>(resolve => {
