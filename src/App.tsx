@@ -775,7 +775,7 @@ const App = () => {
                       {t.donation.support}
                     </p>
                     <a
-                      href="https://www.paypal.com/paypalme/khourykarim"
+                      href="https://pay.ziina.com/khourykarim"
                       target="_blank"
                       rel="noopener noreferrer"
                       className={`
