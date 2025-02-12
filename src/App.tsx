@@ -416,36 +416,38 @@ const App = () => {
               />
             </div>
 
-            {/* Slogan */}
-            <div className="text-center mb-8 font-medium tracking-wide">
-              <div className={`text-base inline-flex items-center justify-center text-gray-600 dark:text-gray-300
-                ${language === Language.AR ? 'flex-row-reverse gap-4' : 'space-x-2'}`}
-              >
-                {language === Language.AR ? (
-                  // Arabic flow (right to left, but same logical order)
-                  <>
-                    <span>{t.tagline.zip} 📦</span>
-                    <span className="text-gray-400 dark:text-gray-500">←</span>
-                    <span>{t.tagline.lock} 🔒</span>
-                    <span className="text-gray-400 dark:text-gray-500">←</span>
-                    <span>{t.tagline.share} 🚀</span>
-                    <span className="text-gray-400 dark:text-gray-500">←</span>
-                    <span>{t.tagline.done} ✨</span>
-                  </>
-                ) : (
-                  // English flow (left to right)
-                  <>
-                    <span>{t.tagline.zip} 📦</span>
-                    <span className="text-gray-400 dark:text-gray-500">→</span>
-                    <span>{t.tagline.lock} 🔒</span>
-                    <span className="text-gray-400 dark:text-gray-500">→</span>
-                    <span>{t.tagline.share} 🚀</span>
-                    <span className="text-gray-400 dark:text-gray-500">→</span>
-                    <span>{t.tagline.done} ✨</span>
-                  </>
-                )}
+            {/* Slogan - only show when not completed */}
+            {!isCompleted && (
+              <div className="text-center mb-8 font-medium tracking-wide">
+                <div className={`text-base inline-flex items-center justify-center text-gray-600 dark:text-gray-300
+                  ${language === Language.AR ? 'flex-row-reverse gap-4' : 'space-x-2'}`}
+                >
+                  {language === Language.AR ? (
+                    // Arabic flow (right to left, but same logical order)
+                    <>
+                      <span>{t.tagline.zip} 📦</span>
+                      <span className="text-gray-400 dark:text-gray-500">←</span>
+                      <span>{t.tagline.lock} 🔒</span>
+                      <span className="text-gray-400 dark:text-gray-500">←</span>
+                      <span>{t.tagline.share} 🚀</span>
+                      <span className="text-gray-400 dark:text-gray-500">←</span>
+                      <span>{t.tagline.done} ✨</span>
+                    </>
+                  ) : (
+                    // English flow (left to right)
+                    <>
+                      <span>{t.tagline.zip} 📦</span>
+                      <span className="text-gray-400 dark:text-gray-500">→</span>
+                      <span>{t.tagline.lock} 🔒</span>
+                      <span className="text-gray-400 dark:text-gray-500">→</span>
+                      <span>{t.tagline.share} 🚀</span>
+                      <span className="text-gray-400 dark:text-gray-500">→</span>
+                      <span>{t.tagline.done} ✨</span>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className={`transition-opacity duration-200 ease-in-out
               ${isResetting ? 'opacity-0' : 'opacity-100'}`}
@@ -694,6 +696,46 @@ const App = () => {
                       <p className="text-gray-600 dark:text-gray-400">
                         {t.missionAccomplished.message}
                       </p>
+                    </div>
+
+                    {/* Password Reminder Section */}
+                    <div className="mb-6 p-4 bg-blue-50 dark:bg-yellow-900/20 
+                      border border-blue-100 dark:border-yellow-700
+                      rounded-lg text-center"
+                    >
+                      <div className="text-sm text-blue-700 dark:text-yellow-300 mb-2">
+                        {language === Language.AR 
+                          ? "🔑 لا تنسى كلمة السر! حافظ عليها في مكان آمن"
+                          : "🔑 Don't forget your password! Keep it somewhere safe"}
+                      </div>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(password).then(() => {
+                            showSnackbar(language === Language.AR 
+                              ? "✨ تم نسخ كلمة السر!"
+                              : "✨ Password copied!");
+                          });
+                        }}
+                        className="font-mono text-base bg-blue-100 dark:bg-yellow-900/40 
+                          text-blue-800 dark:text-yellow-200 
+                          px-3 py-2 rounded-md inline-block
+                          hover:bg-blue-200 dark:hover:bg-yellow-900/60
+                          transition-all duration-200 cursor-pointer
+                          group"
+                      >
+                        <span className="flex items-center gap-2">
+                          {password}
+                          <span className="text-xs text-blue-500 dark:text-yellow-400 opacity-0 
+                            group-hover:opacity-100 transition-opacity duration-200">
+                            📋
+                          </span>
+                        </span>
+                      </button>
+                      <div className="text-xs text-blue-600 dark:text-yellow-400 mt-2">
+                        {language === Language.AR 
+                          ? "⚠️ لن نستطيع استعادة كلمة السر إذا نسيتها!"
+                          : "⚠️ We can't recover it if you lose it!"}
+                      </div>
                     </div>
 
                     {/* Stats Grid */}

@@ -43,7 +43,17 @@ export const translations = {
     },
     missionAccomplished: {
       title: "Mission Accomplished!",
-      message: "Your files are ready to share!"
+      message: "Your files are ready to share!",
+      passwordReminder: {
+        keep: "🔑 Don't forget your password! Keep it somewhere safe",
+        warning: "⚠️ We can't recover it if you lose it!",
+        tips: [
+          "Write it down (not on a sticky note on your screen 😅)",
+          "Store it in your password manager 🔐",
+          "Memorize it like your favorite song 🎵",
+          "Just don't tell it to your cat 🐱"
+        ]
+      }
     },
     stats: {
       originalSize: "Original Size",
@@ -207,7 +217,17 @@ export const translations = {
     },
     missionAccomplished: {
       title: "تمت المهمة بنجاح!",
-      message: "ملفاتك جاهزة للمشاركة!"
+      message: "ملفاتك جاهزة للمشاركة!",
+      passwordReminder: {
+        keep: "🔑 لا تنسى كلمة السر! حافظ عليها في مكان آمن",
+        warning: "⚠️ لن نستطيع استعادة كلمة السر إذا نسيتها",
+        tips: [
+          "😅 اكتبها في مكان آمن (ليس على ورقة ملصقة على شاشتك)",
+          "🔐 احفظها في برنامج إدارة كلمات المرور",
+          "🎵 احفظها مثل أغنيتك المفضلة",
+          "🐱 فقط لا تخبر قطتك بها"
+        ]
+      }
     },
     stats: {
       originalSize: "الحجم الأصلي",
