@@ -105,7 +105,7 @@ const getUniqueFileName = (existingNames: Set<string>, originalName: string): st
   return newName;
 };
 
-// Update the DonationMessage type
+// First, update the type definition
 type DonationMessage = typeof translations[Language]['donation']['messages'][number];
 
 // Add this type for the compression stats
@@ -125,7 +125,10 @@ const App = () => {
   const [error, setError] = useState<string | null>(null);
   const [zipBlob, setZipBlob] = useState<Blob | null>(null);
   const [compressionStats, setCompressionStats] = useState<CompressionStats | null>(null);
-  const [donationMessage, setDonationMessage] = useState<DonationMessage>(translations[Language.EN].donation.messages[0]);
+  const [donationMessage, setDonationMessage] = useState<DonationMessage>(() => {
+    // Safely get the first message from translations
+    return translations[Language.EN].donation.messages[0];
+  });
   const [isResetting, setIsResetting] = useState(false);
   const [removingFileId, setRemovingFileId] = useState<number | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -138,24 +141,26 @@ const App = () => {
 
   const t = translations[language];
 
-  // Update the useEffect for donation messages
+  // Update the useEffect to handle messages correctly
   useEffect(() => {
-    // Set initial message from translations
-    setDonationMessage(translations[language].donation.messages[0]);
+    // Get messages for current language
+    const messages = translations[language].donation.messages;
+    // Set initial message
+    setDonationMessage(messages[0]);
     
     const interval = setInterval(() => {
-      const messages = translations[language].donation.messages;
-      const currentIndex = messages.indexOf(donationMessage);
-      let newIndex: number;
-      do {
-        newIndex = Math.floor(Math.random() * messages.length);
-      } while (newIndex === currentIndex);
-      
-      setDonationMessage(messages[newIndex]);
+      setDonationMessage(prevMessage => {
+        const currentIndex = messages.indexOf(prevMessage);
+        let newIndex: number;
+        do {
+          newIndex = Math.floor(Math.random() * messages.length);
+        } while (newIndex === currentIndex);
+        return messages[newIndex];
+      });
     }, 4000);
     
     return () => clearInterval(interval);
-  }, [language, donationMessage]);
+  }, [language]); // Only depend on language changes
 
   // Move the useEffect inside the component
   useEffect(() => {
