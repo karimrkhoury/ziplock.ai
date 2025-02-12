@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import type { FileRejection } from 'react-dropzone'
 import { BlobWriter, ZipWriter, BlobReader } from '@zip.js/zip.js'
 import DropZone from './components/DropZone'
 import { translations, Language } from './i18n/translations'
@@ -173,7 +172,16 @@ const App = () => {
     }
   }, [isProcessing, language]);
 
+  const MAX_TOTAL_SIZE = 500 * 1024 * 1024; // 500MB
+
   const handleFileDrop = (acceptedFiles: File[]) => {
+    const totalSize = acceptedFiles.reduce((acc, file) => acc + file.size, 0);
+    
+    if (totalSize > MAX_TOTAL_SIZE) {
+      setError(`Total size cannot exceed ${formatFileSize(MAX_TOTAL_SIZE, language)}`);
+      return;
+    }
+
     setFiles(currentFiles => [...currentFiles, ...acceptedFiles]);
     setError(null);
   };

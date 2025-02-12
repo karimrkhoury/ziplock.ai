@@ -1,10 +1,11 @@
 import { useDropzone } from 'react-dropzone'
 import type { DropEvent, FileRejection } from 'react-dropzone'
 import { useState, useCallback } from 'react'
-import { Language, translations, getValidationMessage } from '../i18n/translations'
+import { Language, translations } from '../i18n/translations'
 
 interface DropZoneProps {
-  readonly onDrop: (acceptedFiles: File[], fileRejections: FileRejection[], event: DropEvent) => void
+  onDrop: (acceptedFiles: File[]) => void;
+  error?: string | null;
   readonly maxSize?: number
   readonly className?: string
   readonly lang: Language
@@ -13,11 +14,13 @@ interface DropZoneProps {
 function DropZone({ onDrop, maxSize = 100 * 1024 * 1024, className = '', lang }: DropZoneProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [sizeError, setSizeError] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
 
   const t = translations[lang];
 
-  const handleDrop = useCallback(async (acceptedFiles: File[], rejectedFiles: FileRejection[], event: DropEvent) => {
+  const handleDrop = useCallback(async (
+    acceptedFiles: File[], 
+    rejectedFiles: FileRejection[]
+  ) => {
     // Check for oversized files first
     const oversizedFiles = rejectedFiles.filter(
       rejection => rejection.errors[0]?.code === 'file-too-large'
@@ -37,16 +40,11 @@ function DropZone({ onDrop, maxSize = 100 * 1024 * 1024, className = '', lang }:
     try {
       // Process files with minimal delay for UI feedback
       await new Promise(resolve => setTimeout(resolve, 300));
-      onDrop(acceptedFiles, rejectedFiles, event);
+      onDrop(acceptedFiles);
     } finally {
       setIsLoading(false);
     }
   }, [onDrop, lang, t]);
-
-  const handleRejection = (rejection: FileRejection) => {
-    const error = rejection.errors[0];
-    setError(getValidationMessage(error.code, rejection.file.size, lang));
-  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: handleDrop,
@@ -55,7 +53,6 @@ function DropZone({ onDrop, maxSize = 100 * 1024 * 1024, className = '', lang }:
     noClick: false,
     preventDropOnDocument: true,
     useFsAccessApi: false,
-    onDropRejected: handleRejection
   })
 
   return (
