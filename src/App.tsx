@@ -105,8 +105,17 @@ const getUniqueFileName = (existingNames: Set<string>, originalName: string): st
   return newName;
 };
 
-// First, define a type for the donation messages
-type DonationMessage = typeof translations[Language]['donation']['messages'][number];
+// First, define your donation messages array as a const
+const DONATION_MESSAGES = [
+  "Feed a hungry dev 🥙",
+  "Support my shawarma addiction 🌯",
+  "Help me get that premium IDE theme ✨",
+  "Keep my coffee cup full ☕",
+  // ... other messages
+] as const; // Add 'as const' to make it a readonly tuple
+
+// Create a type from the array
+type DonationMessage = typeof DONATION_MESSAGES[number];
 
 // Add this type for the compression stats
 interface CompressionStats {
@@ -125,7 +134,7 @@ const App = () => {
   const [error, setError] = useState<string | null>(null);
   const [zipBlob, setZipBlob] = useState<Blob | null>(null);
   const [compressionStats, setCompressionStats] = useState<CompressionStats | null>(null);
-  const [donationMessage, setDonationMessage] = useState<DonationMessage>(translations[Language.EN].donation.messages[0]);
+  const [donationMessage, setDonationMessage] = useState<DonationMessage>(DONATION_MESSAGES[0]);
   const [isResetting, setIsResetting] = useState(false);
   const [removingFileId, setRemovingFileId] = useState<number | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -133,14 +142,14 @@ const App = () => {
   const [progress, setProgress] = useState(0);
   const [progressMessage, setProgressMessage] = useState('');
   const [funMessage, setFunMessage] = useState('');
-  const [prevMessage, setPrevMessage] = useState<DonationMessage>(translations[Language.EN].donation.messages[0]);
+  const [prevMessage, setPrevMessage] = useState<DonationMessage>(DONATION_MESSAGES[0]);
 
   const t = translations[language];
 
   // Then update the useEffect that handles donation messages
   useEffect(() => {
     // Set initial message
-    setDonationMessage(translations[language].donation.messages[0]);
+    setDonationMessage(DONATION_MESSAGES[0]);
     
     const interval = setInterval(() => {
       updateRandomMessage();
@@ -316,12 +325,13 @@ const App = () => {
   };
 
   const updateRandomMessage = () => {
-    const messages = translations[language].donation.messages;
-    let newIndex;
+    const currentIndex = DONATION_MESSAGES.indexOf(prevMessage);
+    let newIndex: number;
     do {
-      newIndex = Math.floor(Math.random() * messages.length);
-    } while (newIndex === messages.indexOf(prevMessage));
-    setPrevMessage(messages[newIndex]);
+      newIndex = Math.floor(Math.random() * DONATION_MESSAGES.length);
+    } while (newIndex === currentIndex);
+    
+    setPrevMessage(DONATION_MESSAGES[newIndex]);
   };
 
   return (
