@@ -779,8 +779,14 @@ const App = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       className={`
-                        text-gray-500 dark:text-gray-400 
-                        transition-all duration-300
+                        inline-flex items-center justify-center
+                        px-4 py-2 rounded-lg
+                        bg-orange-100 hover:bg-orange-200 
+                        dark:bg-orange-500/20 dark:hover:bg-orange-500/30
+                        text-orange-600 dark:text-orange-300
+                        font-medium
+                        transform transition-all duration-200
+                        hover:scale-100 active:scale-100
                         ${language === Language.AR ? 'text-right' : 'text-left'}
                       `}
                     >
