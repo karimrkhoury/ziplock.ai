@@ -10,11 +10,14 @@ function ZipLockLogo({ lang, onReset }: ZipLockLogoProps) {
     <button
       onClick={onReset}
       className="group relative inline-flex items-center gap-1 
-        text-3xl font-bold text-gray-900 dark:text-white
+        text-3xl font-bold
         hover:opacity-80 transition-opacity duration-200"
     >
-      <span className="text-blue-600 dark:text-blue-400">zip</span>
-      <span className="text-purple-600 dark:text-purple-400">lock</span>
+      <div className="bg-gradient-to-r from-blue-500 to-purple-500 
+        dark:from-blue-400 dark:to-purple-400 
+        bg-clip-text text-transparent">
+        ziplock
+      </div>
       <span className="text-gray-400 dark:text-gray-500">.me</span>
       {onReset && (
         <div className="absolute -bottom-4 left-0 right-0 text-xs text-gray-400 
