@@ -5,14 +5,21 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    middlewareMode: 'html',
+    port: 3000,
+    strictPort: false,
+    host: true
   },
   build: {
+    outDir: 'dist',
+    sourcemap: true,
     rollupOptions: {
       output: {
-        format: 'es',
-      },
-    },
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          zip: ['@zip.js/zip.js', 'jszip']
+        }
+      }
+    }
   },
   optimizeDeps: {
     esbuildOptions: {
