@@ -376,15 +376,15 @@ const App = () => {
               ${language === Language.AR ? 'flex-row-reverse gap-4' : 'space-x-2'}`}
             >
               {language === Language.AR ? (
-                // Arabic flow (right to left)
+                // Arabic flow (right to left, but same logical order)
                 <>
-                  <span>{t.tagline.done} ✨</span>
-                  <span className="text-gray-400 dark:text-gray-500">←</span>
-                  <span>{t.tagline.share} 🚀</span>
+                  <span>{t.tagline.zip} 📦</span>
                   <span className="text-gray-400 dark:text-gray-500">←</span>
                   <span>{t.tagline.lock} 🔒</span>
                   <span className="text-gray-400 dark:text-gray-500">←</span>
-                  <span>{t.tagline.zip} 📦</span>
+                  <span>{t.tagline.share} 🚀</span>
+                  <span className="text-gray-400 dark:text-gray-500">←</span>
+                  <span>{t.tagline.done} ✨</span>
                 </>
               ) : (
                 // English flow (left to right)
