@@ -6,8 +6,6 @@ import LanguageSwitcher from './components/LanguageSwitcher'
 import ZipLockLogo from './components/ZipLockLogo'
 import { ThemeProvider } from './context/ThemeContext'
 import { ThemeToggle } from './components/ThemeToggle'
-import { clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
 
 // Update formatFileSize function to be more precise with bytes
 const formatFileSize = (bytes: number, lang: Language): string => {
@@ -144,11 +142,6 @@ const App = () => {
   const [progress, setProgress] = useState(0);
   const [progressMessage, setProgressMessage] = useState('');
   const [funMessage, setFunMessage] = useState('');
-  const [prevMessage, setPrevMessage] = useState<DonationMessage>(DONATION_MESSAGES[0]);
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    // Check localStorage and default to dark if not set
-    return localStorage.theme === 'light' ? 'light' : 'dark';
-  });
 
   const t = translations[language];
 
@@ -331,21 +324,13 @@ const App = () => {
   };
 
   const updateRandomMessage = () => {
-    const currentIndex = DONATION_MESSAGES.indexOf(prevMessage);
+    const currentIndex = DONATION_MESSAGES.indexOf(donationMessage);
     let newIndex: number;
     do {
       newIndex = Math.floor(Math.random() * DONATION_MESSAGES.length);
     } while (newIndex === currentIndex);
     
-    setPrevMessage(DONATION_MESSAGES[newIndex]);
-  };
-
-  // Update your theme toggle function
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.theme = newTheme;
-    document.documentElement.classList.toggle('dark');
+    setDonationMessage(DONATION_MESSAGES[newIndex]);
   };
 
   return (
