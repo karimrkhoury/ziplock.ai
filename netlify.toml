@@ -1,11 +1,12 @@
 [build]
-  command = "CI=false npm run build"
+  command = "npm run build"
   publish = "dist"
   node_version = "18.0.0"
 
 [build.environment]
   NODE_VERSION = "18.0.0"
   NPM_FLAGS = "--no-audit --no-fund"
+  CI = "false"
 
 [[redirects]]
   from = "/*"

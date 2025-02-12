@@ -105,8 +105,8 @@ const getUniqueFileName = (existingNames: Set<string>, originalName: string): st
   return newName;
 };
 
-// First, update the type definition
-type DonationMessage = typeof translations[Language]['donation']['messages'][number];
+// Update the type definition to be more explicit
+type DonationMessage = (typeof translations)[Language]['donation']['messages'][number];
 
 // Add this type for the compression stats
 interface CompressionStats {
@@ -141,26 +141,22 @@ const App = () => {
 
   const t = translations[language];
 
-  // Update the useEffect to handle messages correctly
+  // Update the useEffect to use a type assertion
   useEffect(() => {
-    // Get messages for current language
     const messages = translations[language].donation.messages;
-    // Set initial message
     setDonationMessage(messages[0]);
     
     const interval = setInterval(() => {
-      setDonationMessage(prevMessage => {
-        const currentIndex = messages.indexOf(prevMessage);
-        let newIndex: number;
-        do {
-          newIndex = Math.floor(Math.random() * messages.length);
-        } while (newIndex === currentIndex);
+      setDonationMessage((prevMessage) => {
+        const messages = translations[language].donation.messages;
+        const currentIndex = messages.indexOf(prevMessage as DonationMessage);
+        const newIndex = Math.floor(Math.random() * messages.length);
         return messages[newIndex];
       });
     }, 4000);
     
     return () => clearInterval(interval);
-  }, [language]); // Only depend on language changes
+  }, [language]);
 
   // Move the useEffect inside the component
   useEffect(() => {
