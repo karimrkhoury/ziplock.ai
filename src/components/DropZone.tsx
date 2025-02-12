@@ -1,5 +1,5 @@
 import { useDropzone } from 'react-dropzone'
-import type { DropEvent, FileRejection } from 'react-dropzone'
+import type { FileRejection } from 'react-dropzone'
 import { useState, useCallback } from 'react'
 import { Language, translations } from '../i18n/translations'
 

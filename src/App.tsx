@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { BlobWriter, ZipWriter, BlobReader } from '@zip.js/zip.js'
 import DropZone from './components/DropZone'
 import { translations, Language } from './i18n/translations'
@@ -174,7 +174,7 @@ const App = () => {
 
   const MAX_TOTAL_SIZE = 500 * 1024 * 1024; // 500MB
 
-  const handleFileDrop = (acceptedFiles: File[]) => {
+  const handleFileDrop = useCallback((acceptedFiles: File[]) => {
     const totalSize = acceptedFiles.reduce((acc, file) => acc + file.size, 0);
     
     if (totalSize > MAX_TOTAL_SIZE) {
@@ -182,9 +182,9 @@ const App = () => {
       return;
     }
 
-    setFiles(currentFiles => [...currentFiles, ...acceptedFiles]);
+    setFiles(prevFiles => [...prevFiles, ...acceptedFiles]);
     setError(null);
-  };
+  }, [language]);
 
   const handleCompress = async () => {
     if (files.length === 0) return;
