@@ -105,8 +105,8 @@ const getUniqueFileName = (existingNames: Set<string>, originalName: string): st
   return newName;
 };
 
-// First, let's update the DonationMessage type to be more specific
-type DonationMessage = (typeof translations)[Language]['donation']['messages'][number];
+// First, define a type for the donation messages
+type DonationMessage = typeof translations[Language]['donation']['messages'][number];
 
 // Add this type for the compression stats
 interface CompressionStats {
@@ -133,6 +133,7 @@ const App = () => {
   const [progress, setProgress] = useState(0);
   const [progressMessage, setProgressMessage] = useState('');
   const [funMessage, setFunMessage] = useState('');
+  const [prevMessage, setPrevMessage] = useState<DonationMessage>(translations[Language.EN].donation.messages[0]);
 
   const t = translations[language];
 
@@ -142,13 +143,7 @@ const App = () => {
     setDonationMessage(translations[language].donation.messages[0]);
     
     const interval = setInterval(() => {
-      setDonationMessage((prevMessage) => {
-        // Get messages for current language
-        const messages = translations[language].donation.messages;
-        const currentIndex = messages.indexOf(prevMessage as typeof messages[number]);
-        const nextIndex = (currentIndex + 1) % messages.length;
-        return messages[nextIndex];
-      });
+      updateRandomMessage();
     }, 4000);
     
     return () => clearInterval(interval);
@@ -318,6 +313,15 @@ const App = () => {
       link.click();
       URL.revokeObjectURL(url);
     }
+  };
+
+  const updateRandomMessage = () => {
+    const messages = translations[language].donation.messages;
+    let newIndex;
+    do {
+      newIndex = Math.floor(Math.random() * messages.length);
+    } while (newIndex === messages.indexOf(prevMessage));
+    setPrevMessage(messages[newIndex]);
   };
 
   return (
