@@ -38,7 +38,8 @@ export const translations = {
       magicPassword: "Show me magic ✨",
       packItUp: "Pack it up! Let's go",
       allDone: "All done! Files are ready",
-      download: "Download Files 📥"
+      download: "Download Files 📥",
+      helpThinkPassword: "Help me think of one ✨"
     },
     missionAccomplished: {
       title: "Mission Accomplished!",
@@ -47,7 +48,8 @@ export const translations = {
     stats: {
       originalSize: "Original Size",
       saved: "Space Saved",
-      processingTime: "Processing Time"
+      processingTime: "Processing Time",
+      newSize: "New Size"
     },
     donation: {
       support: "Saved you some time? Support me 👇",
@@ -149,7 +151,12 @@ export const translations = {
         "Making files more friendly 🤝",
         "Applying quantum squishing 🔮",
         "Digital Marie Kondo in progress 🧹"
-      ]
+      ],
+      superTiny: "Tiny as a pixel! 🔍",
+      notBad: "Looking good! ✨",
+      superShrink: "smaller! Your files are on a diet! 🏃‍♂️",
+      goodShrink: "smaller! Not bad at all! 💪",
+      mildShrink: "smaller! Every byte counts! 🤏",
     },
     magicPassword: {
       messages: [
@@ -195,7 +202,8 @@ export const translations = {
       magicPassword: "أرني السحر ✨",
       packItUp: "هيا نبدأ!",
       allDone: "تم! الملفات جاهزة",
-      download: "تحميل الملفات 📥"
+      download: "تحميل الملفات 📥",
+      helpThinkPassword: "ساعدني في التفكير ✨"
     },
     missionAccomplished: {
       title: "تمت المهمة بنجاح!",
@@ -204,7 +212,8 @@ export const translations = {
     stats: {
       originalSize: "الحجم الأصلي",
       saved: "تم توفير",
-      processingTime: "وقت المعالجة"
+      processingTime: "وقت المعالجة",
+      newSize: "الحجم الجديد"
     },
     fileSize: {
       tiny: "ملف صغير جداً 📄",
@@ -245,7 +254,12 @@ export const translations = {
         "🤝 جعل الملفات أكثر ودية",
         "🔮 تطبيق الضغط الكمي",
         "🧹 ماري كوندو الرقمية في العمل"
-      ]
+      ],
+      superTiny: "!صغير كالذرة ��",
+      notBad: "!يبدو جيداً ✨",
+      superShrink: "!أصغر! ملفاتك في رجيم 🏃‍♂️",
+      goodShrink: "!أصغر! ليس سيئاً 💪",
+      mildShrink: "!أصغر! كل بايت يهم 🤏",
     },
     donation: {
       support: "وفرت عليك بعض الوقت؟ ادعمني 👇",

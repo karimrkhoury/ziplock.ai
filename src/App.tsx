@@ -208,7 +208,7 @@ const App = () => {
     }
 
     try {
-      const startTime = Date.now();
+      const startTime = performance.now();
       setIsProcessing(true);
       setProgress(0);
       setError(null);
@@ -217,7 +217,6 @@ const App = () => {
       const simulationPromise = new Promise<void>(resolve => {
         const interval = simulateProgress(
           (progress) => {
-            // Ensure we only show whole numbers
             const displayProgress = Math.min(80, Math.floor(progress * 0.8));
             setProgress(displayProgress);
             if (progress % 20 < 1) {
@@ -275,24 +274,22 @@ const App = () => {
       setProgress(100);
       setProgressMessage(t.compression.messages[t.compression.messages.length - 1]);
       
-      // Small delay before completing
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Calculate final processing time
+      const endTime = performance.now();
+      const processingTime = ((endTime - startTime) / 1000).toFixed(1);
 
-      const endTime = Date.now();
-      const processingTime = (endTime - startTime) / 1000;
-      const originalSize = files.reduce((acc, file) => acc + file.size, 0);
-      
       const stats: CompressionStats = {
-        originalSize,
+        originalSize: files.reduce((acc, file) => acc + file.size, 0),
         compressedSize: content.size,
-        processingTime
+        processingTime: parseFloat(processingTime)
       };
+      
       setCompressionStats(stats);
       setZipBlob(content);
       setIsCompleted(true);
       
     } catch (error) {
-      console.error('Compression error:', error);
+      console.error('Compression error:', error); // Keep this one for error tracking
       setError(error instanceof Error ? error.message : t.validation.encryptionFailed);
     } finally {
       setIsProcessing(false);
@@ -339,77 +336,45 @@ const App = () => {
       <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
         {/* Header with responsive design */}
         <div className="fixed top-0 right-0 w-full z-50 p-4">
-          {/* Desktop view */}
-          <div className="hidden md:flex items-center justify-end gap-3">
-            <a 
-              href="https://github.com/karimrkhoury/ziplock.ai"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center p-2 rounded-lg 
-                bg-gray-100 dark:bg-gray-800 
-                text-gray-800 dark:text-gray-200
-                hover:bg-gray-200 dark:hover:bg-gray-700
-                shadow-lg transition-all duration-200"
-            >
-              <div className="flex items-center gap-1">
-                <span>⭐</span>
-                <span className="text-sm">{githubStars}</span>
-              </div>
-            </a>
-            <LanguageSwitcher 
-              currentLang={language}
-              onLanguageChange={setLanguage}
-            />
-            <ThemeToggle />
+          {/* Desktop/tablet view */}
+          <div className="hidden md:flex items-center justify-end mr-4">
+            <div className="flex items-center gap-2">
+              <button className="w-8 h-7 flex items-center justify-center
+                bg-gray-50 dark:bg-gray-800
+                hover:bg-gray-100 dark:hover:bg-gray-700
+                rounded-lg shadow-lg
+                transition-all duration-200"
+              >
+                <LanguageSwitcher 
+                  currentLang={language}
+                  onLanguageChange={setLanguage}
+                />
+              </button>
+              <button className="w-8 h-7 flex items-center justify-center
+                bg-gray-50 dark:bg-gray-800
+                hover:bg-gray-100 dark:hover:bg-gray-700
+                rounded-lg shadow-lg
+                transition-all duration-200"
+              >
+                <ThemeToggle />
+              </button>
+            </div>
           </div>
 
-          {/* Mobile view - Hamburger button */}
-          <div className="md:hidden flex justify-end">
+          {/* Mobile menu button (hamburger) */}
+          <div className="md:hidden fixed top-4 right-4">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 
-                text-gray-800 dark:text-gray-200 shadow-lg"
+              className="w-8 h-7 rounded-md 
+                bg-gray-50 dark:bg-gray-800 
+                text-gray-700 dark:text-gray-200 
+                shadow-lg
+                hover:bg-gray-100 dark:hover:bg-gray-700/50
+                transition-colors duration-200"
               aria-label="Menu"
             >
               {isMobileMenuOpen ? '✕' : '☰'}
             </button>
-          </div>
-
-          {/* Mobile menu */}
-          <div className={`
-            md:hidden fixed top-16 right-4 
-            bg-white dark:bg-gray-800 
-            rounded-lg shadow-xl
-            transition-all duration-200 transform origin-top-right
-            ${isMobileMenuOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'}
-          `}>
-            <div className="p-2 space-y-2 min-w-[200px]">
-              <a 
-                href="https://github.com/karimrkhoury/ziplock.ai"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center w-full p-2 rounded-lg
-                  hover:bg-gray-100 dark:hover:bg-gray-700
-                  transition-colors duration-200"
-              >
-                <div className="flex items-center gap-1">
-                  <span>⭐</span>
-                  <span>{githubStars}</span>
-                </div>
-              </a>
-              <div className="px-2 py-1">
-                <LanguageSwitcher 
-                  currentLang={language}
-                  onLanguageChange={(lang) => {
-                    setLanguage(lang);
-                    setIsMobileMenuOpen(false);
-                  }}
-                />
-              </div>
-              <div className="px-2 py-1">
-                <ThemeToggle />
-              </div>
-            </div>
           </div>
         </div>
 
@@ -460,11 +425,12 @@ const App = () => {
               {!isCompleted ? (
                 <div className="space-y-6">
                   <div className="relative group">
-                    {/* Reduced glow effect for dropzone */}
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 to-purple-500/20 
-                      dark:from-blue-400/20 dark:to-purple-400/20 rounded-lg blur opacity-0 
-                      group-hover:opacity-100 transition duration-300">
-                    </div>
+                    {/* Glow effect for dropzone */}
+                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 
+                      dark:from-blue-400/20 dark:to-purple-400/20 
+                      rounded-lg blur opacity-0 
+                      group-hover:opacity-100 transition duration-300"
+                    />
                     
                     <DropZone 
                       onDrop={handleFileDrop}
@@ -474,78 +440,76 @@ const App = () => {
                     />
                   </div>
                   
-                  {/* File List */}
+                  {/* File List with fade in */}
                   {files.length > 0 && (
-                    <div className="animate-fade-slide-up">
-                      <div className="bg-white dark:bg-gray-800 rounded-lg p-4 space-y-2">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                            {files.length} {files.length === 1 ? t.fileList.filesReady : t.fileList.filesReady_plural}
-                            <span className="ml-2">✨</span>
-                          </div>
-                          <button
-                            onClick={() => {
-                              const fileListElement = document.getElementById('file-list');
-                              if (fileListElement) {
-                                fileListElement.classList.add('animate-fade-out');
-                                setTimeout(() => setFiles([]), 200);
-                              }
-                            }}
-                            className="text-xs text-red-500 hover:text-red-600 dark:text-red-400 
-                              dark:hover:text-red-300 transition-all duration-200
-                              hover:scale-105 active:scale-95"
+                    <div className="animate-fade-slide-up space-y-2">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                          {files.length} {files.length === 1 ? t.fileList.filesReady : t.fileList.filesReady_plural}
+                          <span className="ml-2">✨</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const fileListElement = document.getElementById('file-list');
+                            if (fileListElement) {
+                              fileListElement.classList.add('animate-fade-out');
+                              setTimeout(() => setFiles([]), 200);
+                            }
+                          }}
+                          className="text-xs text-red-500 hover:text-red-600 dark:text-red-400 
+                            dark:hover:text-red-300 transition-all duration-200
+                            hover:scale-105 active:scale-95"
+                        >
+                          {t.fileList.clearAll} 🧹
+                        </button>
+                      </div>
+                      
+                      <div id="file-list" className="space-y-2">
+                        {files.map((file, index) => (
+                          <div 
+                            key={`${file.name}-${index}`}
+                            className={`flex items-center justify-between py-2 px-3 
+                              bg-gray-50 dark:bg-gray-700/50 rounded-lg
+                              group hover:bg-gray-100 dark:hover:bg-gray-700
+                              transition-all duration-200
+                              ${removingFileId === index ? 'animate-fade-out' : 'animate-slide-in'}`}
                           >
-                            {t.fileList.clearAll} 🧹
-                          </button>
-                        </div>
-                        
-                        <div id="file-list" className="space-y-2">
-                          {files.map((file, index) => (
-                            <div 
-                              key={`${file.name}-${index}`}
-                              className={`flex items-center justify-between py-2 px-3 
-                                bg-gray-50 dark:bg-gray-700/50 rounded-lg
-                                group hover:bg-gray-100 dark:hover:bg-gray-700
-                                transition-all duration-200
-                                ${removingFileId === index ? 'animate-fade-out' : 'animate-slide-in'}`}
-                            >
-                              <div className="flex items-center space-x-3 rtl:space-x-reverse">
-                                <span className="text-xl" role="img" aria-label="file type">
-                                  {getFileEmoji(file.name)}
-                                </span>
-                                <span className="text-sm text-gray-700 dark:text-gray-300">
-                                  {file.name}
-                                </span>
-                                <span className="text-xs text-gray-500 dark:text-gray-400">
-                                  {formatFileSize(file.size, language)}
-                                </span>
-                              </div>
-                              
-                              <button
-                                onClick={() => {
-                                  setRemovingFileId(index);
-                                  setTimeout(() => {
-                                    setFiles(files.filter((_, i) => i !== index));
-                                    setRemovingFileId(null);
-                                  }, 200);
-                                }}
-                                className="text-gray-400 hover:text-red-500 dark:text-gray-500 
-                                  dark:hover:text-red-400 opacity-0 group-hover:opacity-100
-                                  transition-all duration-200 hover:scale-110 active:scale-95"
-                                aria-label={t.buttons.removeFile}
-                              >
-                                🗑️
-                              </button>
+                            <div className="flex items-center space-x-3 rtl:space-x-reverse min-w-0">
+                              <span className="text-xl flex-shrink-0" role="img" aria-label="file type">
+                                {getFileEmoji(file.name)}
+                              </span>
+                              <span className="text-sm text-gray-700 dark:text-gray-300 truncate">
+                                {file.name}
+                              </span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0">
+                                {formatFileSize(file.size, language)}
+                              </span>
                             </div>
-                          ))}
-                        </div>
+                            
+                            <button
+                              onClick={() => {
+                                setRemovingFileId(index);
+                                setTimeout(() => {
+                                  setFiles(files.filter((_, i) => i !== index));
+                                  setRemovingFileId(null);
+                                }, 200);
+                              }}
+                              className="text-gray-400 hover:text-red-500 dark:text-gray-500 
+                                dark:hover:text-red-400 opacity-0 group-hover:opacity-100
+                                transition-all duration-200 hover:scale-110 active:scale-95"
+                              aria-label={t.buttons.removeFile}
+                            >
+                              🗑️
+                            </button>
+                          </div>
+                        ))}
+                      </div>
 
-                        {/* Fun message based on number of files */}
-                        <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
-                          {t.fileList[files.length === 1 ? 'oneFile' : 
-                            files.length < 3 ? 'fewFiles' : 
-                            files.length < 5 ? 'manyFiles' : 'lotsOfFiles']}
-                        </div>
+                      {/* Fun message based on number of files */}
+                      <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
+                        {t.fileList[files.length === 1 ? 'oneFile' : 
+                          files.length < 3 ? 'fewFiles' : 
+                          files.length < 5 ? 'manyFiles' : 'lotsOfFiles']}
                       </div>
                     </div>
                   )}
@@ -553,7 +517,7 @@ const App = () => {
                   {files.length > 0 && (
                     <>
                       {/* Password Section when files are present */}
-                      <div className="flex items-center gap-3 mt-4">
+                      <div className="flex flex-col sm:flex-row gap-3 mt-4">
                         <div className="relative flex-1">
                           <input
                             type={showPassword ? 'text' : 'password'}
@@ -601,12 +565,12 @@ const App = () => {
                             });
                           }}
                           className="h-10 px-4 bg-blue-500/10 dark:bg-blue-400/10
-                            text-blue-600 dark:text-blue-300 rounded-lg text-sm whitespace-nowrap
+                            text-blue-600 dark:text-blue-300 rounded-lg text-sm
                             hover:bg-blue-500/20 dark:hover:bg-blue-400/20
-                            transition-colors duration-200"
-                          aria-label={t.buttons.magicPassword}
+                            transition-colors duration-200 whitespace-normal text-center"
+                          aria-label={t.buttons.helpThinkPassword}
                         >
-                          {t.buttons.magicPassword}
+                          {t.buttons.helpThinkPassword}
                         </button>
                       </div>
 
@@ -625,7 +589,9 @@ const App = () => {
                           ${isProcessing ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                         >
                           <div className="space-y-2">
-                            <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-1">
+                            <div className={`flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-1
+                              ${language === Language.AR ? 'flex-row-reverse' : ''}`}
+                            >
                               <div className="transition-all duration-500">
                                 {progressMessage}
                               </div>
@@ -635,10 +601,14 @@ const App = () => {
                             </div>
                             <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
                               <div 
-                                className="h-full bg-gradient-to-r from-blue-500 to-purple-500 
+                                className={`h-full bg-gradient-to-r from-blue-500 to-purple-500 
                                   dark:from-blue-400 dark:to-purple-400
-                                  transition-all duration-700 ease-out"
-                                style={{ width: `${progress}%` }}
+                                  transition-all duration-700 ease-out
+                                  ${language === Language.AR ? 'float-right' : 'float-left'}`}
+                                style={{ 
+                                  width: `${progress}%`,
+                                  transformOrigin: language === Language.AR ? 'right' : 'left'
+                                }}
                               />
                             </div>
                             {/* Rotating fun messages */}
@@ -698,18 +668,14 @@ const App = () => {
                       </p>
                     </div>
 
-                    {/* Gamified Stats Grid */}
-                    <div className="grid grid-cols-3 gap-4 mb-6">
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-2 gap-4 mb-6">
                       <div className="text-center p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl">
                         <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t.stats.originalSize}</div>
-                        <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                          {compressionStats && (
-                            compressionStats.originalSize < 1024 
-                              ? `${compressionStats.originalSize} B`
-                              : formatFileSize(compressionStats.originalSize, language)
-                          )}
+                        <div className="text-3xl sm:text-3xl text-2xl font-bold text-gray-900 dark:text-gray-100">
+                          {compressionStats && formatFileSize(compressionStats.originalSize, language)}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
                           {compressionStats && t.fileSize[
                             compressionStats.originalSize < 1024 ? 'tiny' :
                             compressionStats.originalSize < 1024 * 1024 ? 'small' :
@@ -718,29 +684,23 @@ const App = () => {
                         </div>
                       </div>
                       <div className="text-center p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl">
-                        <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t.stats.saved}</div>
-                        <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                          {compressionStats && 
-                            Math.round((1 - compressionStats.compressedSize / compressionStats.originalSize) * 100)}%
+                        <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t.stats.newSize}</div>
+                        <div className="text-3xl sm:text-3xl text-2xl font-bold text-blue-600 dark:text-blue-400">
+                          {compressionStats && formatFileSize(compressionStats.compressedSize, language)}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {compressionStats && t.compression[
-                            compressionStats.compressedSize < compressionStats.originalSize / 2 
-                              ? 'superSquish' 
-                              : 'nice'
-                          ]}
-                        </div>
-                      </div>
-                      <div className="text-center p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl">
-                        <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t.stats.processingTime}</div>
-                        <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                          {compressionStats && compressionStats.processingTime.toFixed(1)}s
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {compressionStats && t.speed[
-                            compressionStats.processingTime < 1 ? 'zoom' :
-                            compressionStats.processingTime < 2 ? 'fast' : 'done'
-                          ]}
+                        <div className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
+                          {compressionStats && (
+                            <span>
+                              {Math.round((1 - compressionStats.compressedSize / compressionStats.originalSize) * 100)}%{' '}
+                              {t.compression[
+                                compressionStats.compressedSize < compressionStats.originalSize / 2 
+                                  ? 'superShrink' 
+                                  : compressionStats.compressedSize < compressionStats.originalSize * 0.7
+                                  ? 'goodShrink'
+                                  : 'mildShrink'
+                              ]}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -805,7 +765,7 @@ const App = () => {
           </div>
         </div>
 
-        {/* Footer - will stay at bottom */}
+        {/* Footer */}
         <footer className="w-full py-6 px-4 mt-auto">
           <div className="max-w-2xl mx-auto space-y-2 text-center">
             <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -814,20 +774,70 @@ const App = () => {
             <p className="text-xs text-gray-400 dark:text-gray-500">
               {t.credit}
             </p>
+            <a 
+              href="https://github.com/karimrkhoury/ziplock.ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500
+                hover:text-gray-600 dark:hover:text-gray-400 transition-colors duration-200"
+            >
+              <span>⭐</span>
+              <span>{githubStars}</span>
+            </a>
           </div>
         </footer>
 
         {/* Snackbar stays above everything */}
         {snackbarMessage && (
-          <div className="fixed inset-x-0 top-0 flex items-center justify-center">
-            <div className="px-4 py-2 mt-4 bg-gray-900 dark:bg-gray-700 text-white
+          <div className="fixed inset-x-0 top-16 flex items-center justify-center z-50">
+            <div className="px-6 py-3 mx-4 
+              bg-gray-900 dark:bg-gray-50
+              text-white dark:text-gray-900
               rounded-lg shadow-lg animate-slide-down text-sm
-              z-50 mx-auto"
+              max-w-md"
             >
-              {snackbarMessage}
+              <div className="flex items-center justify-center gap-2">
+                {snackbarMessage}
+              </div>
             </div>
           </div>
         )}
+
+        {/* Mobile menu */}
+        <div className={`
+          md:hidden fixed top-12 right-4 
+          bg-gray-50 dark:bg-gray-800 
+          rounded-lg shadow-lg
+          p-1 flex flex-col w-8
+          transition-all duration-200 transform origin-top-right
+          ${isMobileMenuOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'}
+          z-50
+        `}>
+          <div className="flex flex-col gap-1">
+            <div className="w-full py-2 flex items-center justify-center
+              bg-gray-50 dark:bg-gray-800
+              hover:bg-gray-100 dark:hover:bg-gray-700
+              rounded-md
+              transition-all duration-200"
+            >
+              <LanguageSwitcher 
+                currentLang={language}
+                onLanguageChange={(lang) => {
+                  setLanguage(lang);
+                  setIsMobileMenuOpen(false);
+                }}
+              />
+            </div>
+            <div className="w-full py-2 flex items-center justify-center
+              bg-gray-50 dark:bg-gray-800
+              hover:bg-gray-100 dark:hover:bg-gray-700
+              rounded-md
+              transition-all duration-200"
+            >
+              <ThemeToggle />
+            </div>
+          </div>
+        </div>
       </div>
     </ThemeProvider>
   )
