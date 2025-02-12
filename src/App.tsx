@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { BlobWriter, ZipWriter, BlobReader } from '@zip.js/zip.js'
 import DropZone from './components/DropZone'
 import { translations, Language } from './i18n/translations'
@@ -105,8 +105,7 @@ const getUniqueFileName = (existingNames: Set<string>, originalName: string): st
   return newName;
 };
 
-// Update the type definition to be more explicit
-type DonationMessage = (typeof translations)[Language]['donation']['messages'][number];
+// Define the donation message type properly
 
 // Add this type for the compression stats
 interface CompressionStats {
@@ -125,10 +124,6 @@ const App = () => {
   const [error, setError] = useState<string | null>(null);
   const [zipBlob, setZipBlob] = useState<Blob | null>(null);
   const [compressionStats, setCompressionStats] = useState<CompressionStats | null>(null);
-  const [donationMessage, setDonationMessage] = useState<DonationMessage>(() => {
-    // Safely get the first message from translations
-    return translations[Language.EN].donation.messages[0];
-  });
   const [isResetting, setIsResetting] = useState(false);
   const [removingFileId, setRemovingFileId] = useState<number | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -138,25 +133,35 @@ const App = () => {
   const [funMessage, setFunMessage] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [githubStars, setGithubStars] = useState<number>(0);
+  const [donationMessage, setDonationMessage] = useState<string>(
+    translations[Language.EN].donation.messages[0]
+  );
 
   const t = translations[language];
 
-  // Update the useEffect to use a type assertion
+  // Use useMemo for the messages array to avoid recreating it on every render
+  const messages = useMemo(() => 
+    translations[language].donation.messages,
+    [language]
+  );
+
   useEffect(() => {
-    const messages = translations[language].donation.messages;
+    // Reset message when language changes
     setDonationMessage(messages[0]);
-    
+  }, [language, messages]);
+
+  useEffect(() => {
     const interval = setInterval(() => {
-      setDonationMessage((prevMessage) => {
-        const messages = translations[language].donation.messages;
-        const currentIndex = messages.indexOf(prevMessage as DonationMessage);
-        const newIndex = Math.floor(Math.random() * messages.length);
-        return messages[newIndex];
-      });
-    }, 4000);
-    
+      let newIndex: number;
+      do {
+        newIndex = Math.floor(Math.random() * messages.length);
+      } while (messages[newIndex] === donationMessage);
+      
+      setDonationMessage(messages[newIndex]);
+    }, 5000);
+
     return () => clearInterval(interval);
-  }, [language]);
+  }, [messages, donationMessage]);
 
   // Move the useEffect inside the component
   useEffect(() => {
@@ -194,7 +199,7 @@ const App = () => {
 
   const MAX_TOTAL_SIZE = 500 * 1024 * 1024; // 500MB
 
-  const handleFileDrop = useCallback((acceptedFiles: File[]) => {
+  const handleFileDrop = (acceptedFiles: File[]) => {
     const totalSize = acceptedFiles.reduce((acc, file) => acc + file.size, 0);
     
     if (totalSize > MAX_TOTAL_SIZE) {
@@ -204,7 +209,7 @@ const App = () => {
 
     setFiles(prevFiles => [...prevFiles, ...acceptedFiles]);
     setError(null);
-  }, [language]);
+  };
 
   const handleCompress = async () => {
     if (files.length === 0) return;
@@ -780,17 +785,9 @@ const App = () => {
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                       {t.donation.support}
                     </p>
-                    <a
-                      href="https://www.paypal.com/paypalme/khourykarim"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block px-4 py-2 bg-yellow-500/10 dark:bg-yellow-400/10
-                        text-yellow-600 dark:text-yellow-300 rounded-lg font-medium
-                        hover:bg-yellow-500/20 dark:hover:bg-yellow-400/20
-                        transition-all duration-200 animate-cross-fade"
-                    >
+                    <div className="text-gray-500 dark:text-gray-400">
                       {donationMessage}
-                    </a>
+                    </div>
                   </div>
                 </div>
               )}
