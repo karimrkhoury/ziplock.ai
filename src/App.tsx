@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { BlobWriter, ZipWriter, BlobReader } from '@zip.js/zip.js'
 import DropZone from './components/DropZone'
 import { translations, Language } from './i18n/translations'
@@ -133,35 +133,23 @@ const App = () => {
   const [funMessage, setFunMessage] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [githubStars, setGithubStars] = useState<number>(0);
-  const [donationMessage, setDonationMessage] = useState<string>(
-    translations[Language.EN].donation.messages[0]
-  );
+  const [messageIndex, setMessageIndex] = useState(0);
 
   const t = translations[language];
 
-  // Use useMemo for the messages array to avoid recreating it on every render
-  const messages = useMemo(() => 
-    translations[language].donation.messages,
-    [language]
-  );
+  // Keep only what we need
+  const currentMessages = translations[language].donation.messages;
+  const currentMessage = currentMessages[messageIndex];
 
   useEffect(() => {
-    // Reset message when language changes
-    setDonationMessage(messages[0]);
-  }, [language, messages]);
-
-  useEffect(() => {
+    setMessageIndex(0);
+    
     const interval = setInterval(() => {
-      let newIndex: number;
-      do {
-        newIndex = Math.floor(Math.random() * messages.length);
-      } while (messages[newIndex] === donationMessage);
-      
-      setDonationMessage(messages[newIndex]);
+      setMessageIndex(prevIndex => (prevIndex + 1) % currentMessages.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [messages, donationMessage]);
+  }, [language, currentMessages.length]);
 
   // Move the useEffect inside the component
   useEffect(() => {
@@ -785,8 +773,10 @@ const App = () => {
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                       {t.donation.support}
                     </p>
-                    <div className="text-gray-500 dark:text-gray-400">
-                      {donationMessage}
+                    <div className={`text-gray-500 dark:text-gray-400 ${
+                      language === 'ar' ? 'text-right' : 'text-left'
+                    }`}>
+                      {currentMessage}
                     </div>
                   </div>
                 </div>
