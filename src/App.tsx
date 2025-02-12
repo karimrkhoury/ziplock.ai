@@ -720,7 +720,7 @@ const App = () => {
                     {t.donation.support}
                   </p>
                   <a
-                    href="https://www.paypal.com"
+                    href="https://www.paypal.com/paypalme/khourykarim"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-block px-4 py-2 bg-yellow-500/10 dark:bg-yellow-400/10
