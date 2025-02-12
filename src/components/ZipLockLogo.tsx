@@ -2,30 +2,27 @@ import { Language } from '../i18n/translations';
 
 interface ZipLockLogoProps {
   lang: Language;
-  onReset: () => void;
+  onReset?: () => void;
 }
 
-const ZipLockLogo = ({ lang, onReset }: ZipLockLogoProps) => {
+function ZipLockLogo({ lang, onReset }: ZipLockLogoProps) {
   return (
-    <div className="w-64 mx-auto relative" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-      <button 
-        onClick={onReset}
-        className="text-4xl font-bold tracking-tight group relative hover:opacity-80 transition-opacity duration-200"
-      >
-        <span className="text-gray-700 dark:text-gray-100 
-          transition-colors duration-300"
-        >
-          zip
-        </span>
-        <span className="bg-gradient-to-r from-blue-500 to-purple-500 
-          dark:from-blue-400 dark:to-purple-400 
-          bg-clip-text text-transparent
-          transition-colors duration-300"
-        >
-          lock.ai
-        </span>
-      </button>
-    </div>
+    <button
+      onClick={onReset}
+      className="group relative inline-flex items-center gap-1 
+        text-3xl font-bold text-gray-900 dark:text-white
+        hover:opacity-80 transition-opacity duration-200"
+    >
+      <span className="text-blue-600 dark:text-blue-400">zip</span>
+      <span className="text-purple-600 dark:text-purple-400">lock</span>
+      <span className="text-gray-400 dark:text-gray-500">.me</span>
+      {onReset && (
+        <div className="absolute -bottom-4 left-0 right-0 text-xs text-gray-400 
+          dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+          {lang === Language.AR ? 'انقر للبدء من جديد' : 'Click to start over'}
+        </div>
+      )}
+    </button>
   )
 }
 
