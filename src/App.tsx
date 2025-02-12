@@ -418,8 +418,8 @@ const App = () => {
           <div className="max-w-2xl mx-auto p-8">
             <div className="text-center mb-8">
               <ZipLockLogo 
-                lang={language} 
-                onReset={handleReset}
+                lang={language}
+                onReset={files.length > 0 || isCompleted ? handleReset : undefined}
               />
             </div>
 
