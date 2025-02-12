@@ -397,10 +397,10 @@ const App = () => {
             md:hidden fixed top-16 right-4 
             bg-white dark:bg-gray-800 
             rounded-lg shadow-xl
-            transition-all duration-200 transform
+            transition-all duration-200 transform origin-top-right
             ${isMobileMenuOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'}
           `}>
-            <div className="p-2 space-y-2">
+            <div className="p-2 space-y-2 min-w-[200px]">
               <a 
                 href="https://github.com/karimrkhoury/ziplock.ai"
                 target="_blank"
@@ -409,7 +409,7 @@ const App = () => {
                   hover:bg-gray-100 dark:hover:bg-gray-700
                   transition-colors duration-200"
               >
-                <span>GitHub</span>
+                <span className="text-gray-700 dark:text-gray-300">GitHub</span>
                 <div className="flex items-center gap-1">
                   <span>⭐</span>
                   <span>{githubStars}</span>
