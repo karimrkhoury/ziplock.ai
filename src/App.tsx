@@ -142,6 +142,7 @@ const App = () => {
   const [progress, setProgress] = useState(0);
   const [progressMessage, setProgressMessage] = useState('');
   const [funMessage, setFunMessage] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const t = translations[language];
 
@@ -336,30 +337,78 @@ const App = () => {
   return (
     <ThemeProvider>
       <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
-        {/* Header with all buttons aligned right */}
-        <div className="fixed top-4 right-4 flex items-center gap-3 z-50">
-          <a 
-            href="https://github.com/karimrkhoury/ziplock.ai"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center p-2 rounded-lg 
-              bg-gray-100 dark:bg-gray-800 
-              text-gray-800 dark:text-gray-200
-              hover:bg-gray-200 dark:hover:bg-gray-700
-              shadow-lg
-              transition-all duration-200"
-            aria-label="GitHub Stars"
-          >
-            <div className="flex items-center gap-1">
-              <span>⭐</span>
-              <span className="text-sm">0</span>
+        {/* Header with responsive design */}
+        <div className="fixed top-0 right-0 w-full z-50 p-4">
+          {/* Desktop view */}
+          <div className="hidden md:flex items-center justify-end gap-3">
+            <a 
+              href="https://github.com/karimrkhoury/ziplock.ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center p-2 rounded-lg 
+                bg-gray-100 dark:bg-gray-800 
+                text-gray-800 dark:text-gray-200
+                hover:bg-gray-200 dark:hover:bg-gray-700
+                shadow-lg transition-all duration-200"
+            >
+              <div className="flex items-center gap-1">
+                <span>⭐</span>
+                <span className="text-sm">0</span>
+              </div>
+            </a>
+            <LanguageSwitcher 
+              currentLang={language}
+              onLanguageChange={setLanguage}
+            />
+            <ThemeToggle />
+          </div>
+
+          {/* Mobile view - Hamburger button */}
+          <div className="md:hidden flex justify-end">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 
+                text-gray-800 dark:text-gray-200 shadow-lg"
+              aria-label="Menu"
+            >
+              {isMobileMenuOpen ? '✕' : '☰'}
+            </button>
+          </div>
+
+          {/* Mobile menu */}
+          <div className={`
+            md:hidden fixed top-16 right-4 
+            bg-white dark:bg-gray-800 
+            rounded-lg shadow-xl
+            transition-all duration-200 transform
+            ${isMobileMenuOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'}
+          `}>
+            <div className="p-2 space-y-2">
+              <a 
+                href="https://github.com/karimrkhoury/ziplock.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between w-full p-2 rounded-lg
+                  hover:bg-gray-100 dark:hover:bg-gray-700
+                  transition-colors duration-200"
+              >
+                <span>GitHub</span>
+                <span>⭐</span>
+              </a>
+              <div className="px-2 py-1">
+                <LanguageSwitcher 
+                  currentLang={language}
+                  onLanguageChange={(lang) => {
+                    setLanguage(lang);
+                    setIsMobileMenuOpen(false);
+                  }}
+                />
+              </div>
+              <div className="px-2 py-1">
+                <ThemeToggle />
+              </div>
             </div>
-          </a>
-          <LanguageSwitcher 
-            currentLang={language}
-            onLanguageChange={setLanguage}
-          />
-          <ThemeToggle />
+          </div>
         </div>
 
         <div className="max-w-2xl mx-auto p-8">
