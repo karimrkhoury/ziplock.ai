@@ -9,8 +9,17 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light')
+export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    // Check localStorage but default to dark if not set
+    return localStorage.theme === 'light' ? 'light' : 'dark';
+  });
+
+  useEffect(() => {
+    // Add dark class by default
+    document.documentElement.classList.add('dark');
+    localStorage.theme = 'dark';
+  }, []);
 
   useEffect(() => {
     // Remove both classes first
