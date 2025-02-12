@@ -4,13 +4,15 @@ export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme()
 
   return (
-    <button
+    <div 
       onClick={toggleTheme}
-      className="text-gray-700 dark:text-gray-200
-        transition-all duration-200"
+      className="w-full h-full flex items-center justify-center
+        text-gray-700 dark:text-gray-200
+        transition-all duration-200
+        cursor-pointer"
       aria-label="Toggle theme"
     >
       {theme === 'light' ? '🌙' : '☀️'}
-    </button>
+    </div>
   )
 } 

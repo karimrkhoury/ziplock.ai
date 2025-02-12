@@ -11,13 +11,15 @@ export function LanguageSwitcher({ currentLang, onLanguageChange }: LanguageSwit
   };
 
   return (
-    <button
+    <div
       onClick={handleClick}
-      className="text-gray-700 dark:text-gray-200
-        transition-all duration-200"
+      className="w-full h-full flex items-center justify-center
+        text-gray-700 dark:text-gray-200
+        transition-all duration-200
+        cursor-pointer"
     >
       {currentLang === 'en' ? 'ع' : 'en'}
-    </button>
+    </div>
   );
 }
 
