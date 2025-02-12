@@ -105,17 +105,8 @@ const getUniqueFileName = (existingNames: Set<string>, originalName: string): st
   return newName;
 };
 
-// First, define your donation messages array as a const
-const DONATION_MESSAGES = [
-  "Feed a hungry dev 🥙",
-  "Support my shawarma addiction 🌯",
-  "Help me get that premium IDE theme ✨",
-  "Keep my coffee cup full ☕",
-  // ... other messages
-] as const; // Add 'as const' to make it a readonly tuple
-
-// Create a type from the array
-type DonationMessage = typeof DONATION_MESSAGES[number];
+// Update the DonationMessage type
+type DonationMessage = typeof translations[Language]['donation']['messages'][number];
 
 // Add this type for the compression stats
 interface CompressionStats {
@@ -134,7 +125,7 @@ const App = () => {
   const [error, setError] = useState<string | null>(null);
   const [zipBlob, setZipBlob] = useState<Blob | null>(null);
   const [compressionStats, setCompressionStats] = useState<CompressionStats | null>(null);
-  const [donationMessage, setDonationMessage] = useState<DonationMessage>(DONATION_MESSAGES[0]);
+  const [donationMessage, setDonationMessage] = useState<DonationMessage>(translations[Language.EN].donation.messages[0]);
   const [isResetting, setIsResetting] = useState(false);
   const [removingFileId, setRemovingFileId] = useState<number | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -147,17 +138,24 @@ const App = () => {
 
   const t = translations[language];
 
-  // Then update the useEffect that handles donation messages
+  // Update the useEffect for donation messages
   useEffect(() => {
-    // Set initial message
-    setDonationMessage(DONATION_MESSAGES[0]);
+    // Set initial message from translations
+    setDonationMessage(translations[language].donation.messages[0]);
     
     const interval = setInterval(() => {
-      updateRandomMessage();
+      const messages = translations[language].donation.messages;
+      const currentIndex = messages.indexOf(donationMessage);
+      let newIndex: number;
+      do {
+        newIndex = Math.floor(Math.random() * messages.length);
+      } while (newIndex === currentIndex);
+      
+      setDonationMessage(messages[newIndex]);
     }, 4000);
     
     return () => clearInterval(interval);
-  }, [language]);
+  }, [language, donationMessage]);
 
   // Move the useEffect inside the component
   useEffect(() => {
@@ -341,16 +339,6 @@ const App = () => {
     }
   };
 
-  const updateRandomMessage = () => {
-    const currentIndex = DONATION_MESSAGES.indexOf(donationMessage);
-    let newIndex: number;
-    do {
-      newIndex = Math.floor(Math.random() * DONATION_MESSAGES.length);
-    } while (newIndex === currentIndex);
-    
-    setDonationMessage(DONATION_MESSAGES[newIndex]);
-  };
-
   return (
     <ThemeProvider>
       <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
@@ -405,11 +393,10 @@ const App = () => {
                 href="https://github.com/karimrkhoury/ziplock.ai"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-between w-full p-2 rounded-lg
+                className="flex items-center justify-center w-full p-2 rounded-lg
                   hover:bg-gray-100 dark:hover:bg-gray-700
                   transition-colors duration-200"
               >
-                <span className="text-gray-700 dark:text-gray-300">GitHub</span>
                 <div className="flex items-center gap-1">
                   <span>⭐</span>
                   <span>{githubStars}</span>
