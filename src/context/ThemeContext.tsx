@@ -10,13 +10,17 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>('light')
+  const [theme, setTheme] = useState<Theme>(() => {
+    // Default to dark instead of light
+    return 'dark'
+  })
 
   useEffect(() => {
-    // Remove both classes first
+    // Add dark class by default
     document.documentElement.classList.remove('light', 'dark')
-    // Add the current theme class
     document.documentElement.classList.add(theme)
+    // Store the theme preference
+    localStorage.theme = theme
   }, [theme])
 
   const toggleTheme = () => {
