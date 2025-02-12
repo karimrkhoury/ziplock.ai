@@ -6,6 +6,8 @@ import LanguageSwitcher from './components/LanguageSwitcher'
 import ZipLockLogo from './components/ZipLockLogo'
 import { ThemeProvider } from './context/ThemeContext'
 import { ThemeToggle } from './components/ThemeToggle'
+import { clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
 
 // Update formatFileSize function to be more precise with bytes
 const formatFileSize = (bytes: number, lang: Language): string => {
