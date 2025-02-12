@@ -19,7 +19,7 @@ function ZipLockLogo({ lang, onReset, showReset }: ZipLockLogoProps) {
     >
       <div className="relative px-4 py-2">
         <div className="inline-flex">
-          <span className="text-gray-600 dark:text-gray-400">
+          <span className="text-gray-600 dark:text-gray-300">
             zip
           </span>
           <span className="bg-gradient-to-r from-blue-500 to-purple-500 
