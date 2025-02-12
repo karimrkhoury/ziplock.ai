@@ -7,6 +7,7 @@ import ZipLockLogo from './components/ZipLockLogo'
 import { ThemeProvider } from './context/ThemeContext'
 import { ThemeToggle } from './components/ThemeToggle'
 
+
 // Update formatFileSize function to be more precise with bytes
 const formatFileSize = (bytes: number, lang: Language): string => {
   if (bytes === 0) return '0 B';
@@ -773,11 +774,18 @@ const App = () => {
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
                       {t.donation.support}
                     </p>
-                    <div className={`text-gray-500 dark:text-gray-400 ${
-                      language === 'ar' ? 'text-right' : 'text-left'
-                    }`}>
+                    <a
+                      href="https://www.paypal.com/paypalme/khourykarim"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`
+                        text-gray-500 dark:text-gray-400 
+                        transition-all duration-300
+                        ${language === Language.AR ? 'text-right' : 'text-left'}
+                      `}
+                    >
                       {currentMessage}
-                    </div>
+                    </a>
                   </div>
                 </div>
               )}
