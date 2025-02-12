@@ -17,7 +17,7 @@ async function testCompression(file: File, level: number): Promise<number> {
 }
 
 // Test different file types with different compression levels
-async function runCompressionTests() {
+export async function runCompressionTests() {
   const testFiles = [
     new File(['a'.repeat(100000)], 'text.txt', { type: 'text/plain' }),
     // Create a simple PNG

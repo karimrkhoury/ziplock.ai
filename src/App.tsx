@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import type { FileRejection } from 'react-dropzone'
 import { BlobWriter, ZipWriter, BlobReader } from '@zip.js/zip.js'
 import DropZone from './components/DropZone'
-import SecretPassword from './components/SecretPassword'
 import { translations, Language } from './i18n/translations'
 import LanguageSwitcher from './components/LanguageSwitcher'
 import ZipLockLogo from './components/ZipLockLogo'
@@ -117,7 +116,7 @@ interface CompressionStats {
   processingTime: number;
 }
 
-function App(): JSX.Element {
+const App = () => {
   // Basic states
   const [language, setLanguage] = useState<Language>(Language.EN);
   const [files, setFiles] = useState<File[]>([]);
@@ -126,7 +125,6 @@ function App(): JSX.Element {
   const [isCompleted, setIsCompleted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [zipBlob, setZipBlob] = useState<Blob | null>(null);
-  const [startTime, setStartTime] = useState<number>(0);
   const [compressionStats, setCompressionStats] = useState<CompressionStats | null>(null);
   const [donationMessage, setDonationMessage] = useState<DonationMessage>(translations[Language.EN].donation.messages[0]);
   const [isResetting, setIsResetting] = useState(false);
@@ -175,7 +173,7 @@ function App(): JSX.Element {
     }
   }, [isProcessing, language]);
 
-  const handleFileDrop = (acceptedFiles: File[], fileRejections: FileRejection[]) => {
+  const handleFileDrop = (acceptedFiles: File[]) => {
     setFiles(currentFiles => [...currentFiles, ...acceptedFiles]);
     setError(null);
   };

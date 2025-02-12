@@ -13,6 +13,7 @@ interface DropZoneProps {
 function DropZone({ onDrop, maxSize = 100 * 1024 * 1024, className = '', lang }: DropZoneProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [sizeError, setSizeError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   const t = translations[lang];
 
@@ -42,12 +43,10 @@ function DropZone({ onDrop, maxSize = 100 * 1024 * 1024, className = '', lang }:
     }
   }, [onDrop, lang, t]);
 
-  const onDropRejected = useCallback((fileRejections: FileRejection[]) => {
-    const rejection = fileRejections[0];
+  const handleRejection = (rejection: FileRejection) => {
     const error = rejection.errors[0];
-    const message = getValidationMessage(error.code, rejection.file.size, lang);
-    onDrop([], fileRejections, {} as DropEvent);
-  }, [onDrop, lang]);
+    setError(getValidationMessage(error.code, rejection.file.size, lang));
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: handleDrop,
@@ -56,7 +55,7 @@ function DropZone({ onDrop, maxSize = 100 * 1024 * 1024, className = '', lang }:
     noClick: false,
     preventDropOnDocument: true,
     useFsAccessApi: false,
-    onDropRejected
+    onDropRejected: handleRejection
   })
 
   return (

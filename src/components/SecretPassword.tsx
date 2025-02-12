@@ -8,13 +8,6 @@ interface SecretPasswordProps {
   lang: Language
 }
 
-interface TranslationType {
-  title: string;
-  funnyPlaceholder: string;
-  savedPassword: string;
-  placeholder: string;
-}
-
 function SecretPassword({ password, onPasswordChange, onGeneratePassword, lang }: SecretPasswordProps) {
   const [showPassword, setShowPassword] = useState(false)
   const t = translations[lang]

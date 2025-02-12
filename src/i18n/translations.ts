@@ -332,8 +332,8 @@ export const getValidationMessage = (code: string, size: number, lang: Language)
   switch (code) {
     case 'file-too-large':
       return lang === 'ar' 
-        ? `حجم الملف كبير جداً (${formatFileSize(size, lang)})، الحد الأقصى المسموح به هو ١٠٠ MB`
-        : `File is too large (${formatFileSize(size, lang)}). Max size is 100MB`;
+        ? `حجم الملف كبير جداً (${formatFileSize(size)})، الحد الأقصى المسموح به هو ١٠٠ MB`
+        : `File is too large (${formatFileSize(size)}). Max size is 100MB`;
     default:
       return lang === 'ar'
         ? 'حدث خطأ غير متوقع'
@@ -341,7 +341,7 @@ export const getValidationMessage = (code: string, size: number, lang: Language)
   }
 };
 
-const formatFileSize = (bytes: number, lang: Language): string => {
+const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes';
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
