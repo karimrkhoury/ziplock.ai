@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { BlobWriter, ZipWriter, BlobReader } from '@zip.js/zip.js'
 import DropZone from './components/DropZone'
 import { translations, Language } from './i18n/translations'
@@ -331,6 +331,33 @@ const App = () => {
     }
   };
 
+  // Add this ref
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
+
+  // Add this useEffect for click outside handling
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
+      if (isMobileMenuOpen && 
+          mobileMenuRef.current && 
+          hamburgerRef.current && 
+          !mobileMenuRef.current.contains(event.target as Node) &&
+          !hamburgerRef.current.contains(event.target as Node)) {
+        setIsMobileMenuOpen(false);
+      }
+    }
+
+    // Add both mouse and touch events
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+
+    return () => {
+      // Clean up
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isMobileMenuOpen]);
+
   return (
     <ThemeProvider>
       <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
@@ -364,6 +391,7 @@ const App = () => {
           {/* Mobile menu button (hamburger) */}
           <div className="md:hidden fixed top-4 right-4">
             <button
+              ref={hamburgerRef}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="w-8 h-7 rounded-md 
                 bg-gray-50 dark:bg-gray-800 
@@ -804,15 +832,18 @@ const App = () => {
         )}
 
         {/* Mobile menu */}
-        <div className={`
-          md:hidden fixed top-12 right-4 
-          bg-gray-50 dark:bg-gray-800 
-          rounded-lg shadow-lg
-          p-1 flex flex-col w-8
-          transition-all duration-200 transform origin-top-right
-          ${isMobileMenuOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'}
-          z-50
-        `}>
+        <div 
+          ref={mobileMenuRef}
+          className={`
+            md:hidden fixed top-12 right-4 
+            bg-gray-50 dark:bg-gray-800 
+            rounded-lg shadow-lg
+            p-1 flex flex-col w-8
+            transition-all duration-200 transform origin-top-right
+            ${isMobileMenuOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'}
+            z-50
+          `}
+        >
           <div className="flex flex-col gap-1">
             <div className="w-full py-2 flex items-center justify-center
               bg-gray-50 dark:bg-gray-800
