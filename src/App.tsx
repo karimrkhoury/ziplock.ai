@@ -339,7 +339,7 @@ const App = () => {
         {/* Header with all buttons aligned right */}
         <div className="fixed top-4 right-4 flex items-center gap-3 z-50">
           <a 
-            href="https://github.com/karimfayed/ziplock"
+            href="https://github.com/karimrkhoury/ziplock.ai"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center p-2 rounded-lg 
