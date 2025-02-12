@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ziplock.me/sitemap.xml 

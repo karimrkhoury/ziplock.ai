@@ -373,29 +373,31 @@ const App = () => {
           {/* Slogan */}
           <div className="text-center mb-8 font-medium tracking-wide">
             <div className={`text-base inline-flex items-center justify-center text-gray-600 dark:text-gray-300
-              ${language === 'ar' ? 'gap-4 rtl' : 'space-x-2'}`}
+              ${language === Language.AR ? 'flex-row-reverse gap-4' : 'space-x-2'}`}
             >
-              <span className={language === 'ar' ? 'ml-1' : 'mr-1'}>
-                {t.tagline.zip} 📦
-              </span>
-              <span className="text-gray-400 dark:text-gray-500">
-                {language === 'ar' ? '←' : '→'}
-              </span>
-              <span className={language === 'ar' ? 'ml-1' : 'mr-1'}>
-                {t.tagline.lock} 🔒
-              </span>
-              <span className="text-gray-400 dark:text-gray-500">
-                {language === 'ar' ? '←' : '→'}
-              </span>
-              <span className={language === 'ar' ? 'ml-1' : 'mr-1'}>
-                {t.tagline.share} 🚀
-              </span>
-              <span className="text-gray-400 dark:text-gray-500">
-                {language === 'ar' ? '←' : '→'}
-              </span>
-              <span className={language === 'ar' ? 'ml-1' : 'mr-1'}>
-                {t.tagline.done} ✨
-              </span>
+              {language === Language.AR ? (
+                // Arabic flow (right to left)
+                <>
+                  <span>{t.tagline.done} ✨</span>
+                  <span className="text-gray-400 dark:text-gray-500">←</span>
+                  <span>{t.tagline.share} 🚀</span>
+                  <span className="text-gray-400 dark:text-gray-500">←</span>
+                  <span>{t.tagline.lock} 🔒</span>
+                  <span className="text-gray-400 dark:text-gray-500">←</span>
+                  <span>{t.tagline.zip} 📦</span>
+                </>
+              ) : (
+                // English flow (left to right)
+                <>
+                  <span>{t.tagline.zip} 📦</span>
+                  <span className="text-gray-400 dark:text-gray-500">→</span>
+                  <span>{t.tagline.lock} 🔒</span>
+                  <span className="text-gray-400 dark:text-gray-500">→</span>
+                  <span>{t.tagline.share} 🚀</span>
+                  <span className="text-gray-400 dark:text-gray-500">→</span>
+                  <span>{t.tagline.done} ✨</span>
+                </>
+              )}
             </div>
           </div>
 
