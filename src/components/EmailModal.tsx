@@ -18,7 +18,10 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, files, lang, z
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!zipBlob) return;
+    if (!zipBlob) {
+      console.error('No zipBlob available');
+      return;
+    }
 
     setIsUploading(true);
     setUploadError(null);
@@ -27,20 +30,26 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, files, lang, z
       const formData = new FormData();
       formData.append('file', zipBlob, 'ziplocked-files.zip');
 
-      console.log('Uploading to:', import.meta.env.VITE_API_URL);
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/upload`, {
+      const apiUrl = `${import.meta.env.VITE_API_URL}/upload`;
+      console.log('Uploading to:', apiUrl);
+      console.log('File size:', zipBlob.size);
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         body: formData,
       });
 
+      console.log('Response status:', response.status);
+      const responseText = await response.text();
+      console.log('Response text:', responseText);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Server error:', errorData);
-        throw new Error(errorData.error || 'Upload failed');
+        console.error('Upload failed:', response.status, responseText);
+        throw new Error('Upload failed');
       }
 
-      const data = await response.json();
-      console.log('Upload response:', data);
+      const data = JSON.parse(responseText);
+      console.log('Upload successful:', data);
 
       const { downloadUrl } = data;
 
