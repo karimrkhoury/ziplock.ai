@@ -11,15 +11,17 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import dotenv from 'dotenv';
 
 // Load environment variables
-dotenv.config({
-  path: process.env.NODE_ENV === 'production' ? '.env' : '.env.development'
-});
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3001;
 
-// Enable CORS
-app.use(cors());
+// Enable CORS with specific origin
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? 'https://ziplock.me'
+    : 'http://localhost:5173'
+}));
 
 // Initialize S3 client
 const s3Client = new S3Client({
@@ -38,6 +40,11 @@ const upload = multer({
   limits: {
     fileSize: 500 * 1024 * 1024 // 500MB
   }
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
 });
 
 // Handle file uploads
@@ -98,4 +105,7 @@ app.use((err, req, res, next) => {
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
+  console.log('Environment:', process.env.NODE_ENV);
+  console.log('S3 Region:', process.env.S3_REGION);
+  console.log('S3 Bucket:', process.env.S3_BUCKET_NAME);
 });

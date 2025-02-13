@@ -24,12 +24,11 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, files, lang, z
     setUploadError(null);
 
     try {
-      // Create form data with the zip file
       const formData = new FormData();
       formData.append('file', zipBlob, 'ziplocked-files.zip');
 
-      // Upload to a temporary file hosting service
-      const response = await fetch(import.meta.env.VITE_API_URL + '/upload', {
+      console.log('Uploading to:', import.meta.env.VITE_API_URL);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/upload`, {
         method: 'POST',
         body: formData,
       });
@@ -38,15 +37,14 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, files, lang, z
 
       const { downloadUrl } = await response.json();
 
-      // Create email body with the download link
       const body = `Here are the files I want to share with you:\n\n${files
         .map((file) => `- ${file.name}`)
         .join('\n')}\n\nDownload your files here:\n${downloadUrl}`;
 
-      // Open email client with the download link
       window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       onClose();
     } catch (error) {
+      console.error('Upload error:', error);
       setUploadError(t.email.uploadError);
     } finally {
       setIsUploading(false);
