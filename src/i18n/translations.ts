@@ -30,7 +30,7 @@ export const translations = {
     },
     buttons: {
       zipMore: "Zip More Files 🗂️",
-      emailKey: "Share Files 🔗 (Coming Soon)",
+      emailKey: "Share Files 🔗",
       startFresh: "Start Fresh 🧹",
       removeFile: "Remove file",
       hidePassword: "Hide password 🙈",
@@ -39,7 +39,9 @@ export const translations = {
       packItUp: "Pack it up! Let's go",
       allDone: "All done! Files are ready",
       download: "Download Files 📥",
-      helpThinkPassword: "Help me think of one ✨"
+      helpThinkPassword: "Help me think of one ✨",
+      send: 'Send',
+      cancel: 'Cancel'
     },
     missionAccomplished: {
       title: "Mission Accomplished!",
@@ -182,7 +184,14 @@ export const translations = {
         "Quantum-secure password in your clipboard! 🤖"
       ],
       clipboardError: "Magic worked but clipboard failed! Password is shown above ✨"
-    }
+    },
+    email: {
+      to: 'To',
+      subject: 'Subject',
+      message: 'Message',
+      uploading: 'Uploading...',
+      uploadError: 'Failed to upload files. Please try again.',
+    },
   },
   ar: {
     tagline: {
@@ -204,7 +213,7 @@ export const translations = {
     },
     buttons: {
       zipMore: "ضغط المزيد من الملفات 🗂️",
-      emailKey: "مشاركة الملفات 🔗 (قريباً)",
+      emailKey: "مشاركة الملفات 🔗",
       startFresh: "البدء من جديد 🧹",
       removeFile: "حذف الملف",
       hidePassword: "إخفاء كلمة السر 🙈",
@@ -213,7 +222,9 @@ export const translations = {
       packItUp: "هيا نبدأ!",
       allDone: "تم! الملفات جاهزة",
       download: "تحميل الملفات 📥",
-      helpThinkPassword: "ساعدني في التفكير ✨"
+      helpThinkPassword: "ساعدني في التفكير ✨",
+      send: 'إرسال',
+      cancel: 'إلغاء'
     },
     missionAccomplished: {
       title: "تمت المهمة بنجاح!",
@@ -356,7 +367,14 @@ export const translations = {
         "كلمة مرور كمية آمنة في حافظتك! 🤖"
       ],
       clipboardError: "نجح السحر لكن فشل النسخ! كلمة المرور معروضة أعلاه ✨"
-    }
+    },
+    email: {
+      to: 'إلى',
+      subject: 'الموضوع',
+      message: 'الرسالة',
+      uploading: '...جاري الرفع',
+      uploadError: '.فشل رفع الملفات. يرجى المحاولة مرة أخرى',
+    },
   }
 } as const;
 

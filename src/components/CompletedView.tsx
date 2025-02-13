@@ -9,6 +9,7 @@ interface CompletedViewProps {
   onReset: () => void
   onEmail: () => void
   formatFileSize: (bytes: number) => string
+  selectedFiles: File[]
 }
 
 function CompletedView({ 
@@ -19,11 +20,22 @@ function CompletedView({
   onDownload,
   onReset,
   onEmail,
-  formatFileSize
+  formatFileSize,
+  selectedFiles
 }: CompletedViewProps) {
   const t = translations[lang]
   const savedSize = originalSize - compressedSize
   const savedPercentage = Math.round((savedSize / originalSize) * 100)
+
+  const getEmailShareLink = () => {
+    const subject = encodeURIComponent('Files shared via ZipLock');
+    const body = encodeURIComponent(
+      `Here are the files I want to share with you:\n\n${selectedFiles
+        .map((file) => `- ${file.name}`)
+        .join('\n')}`
+    );
+    return `mailto:?subject=${subject}&body=${body}`;
+  };
 
   return (
     <div className="mt-8 space-y-6">
@@ -59,14 +71,15 @@ function CompletedView({
         >
           {t.buttons.download}
         </button>
-        <button
+        <a
+          href={getEmailShareLink()}
           onClick={onEmail}
           className="w-full py-2 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 
             dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg 
-            transition-colors duration-200"
+            transition-colors duration-200 text-center flex items-center justify-center gap-2"
         >
-          {t.buttons.emailKey}
-        </button>
+          <i className="fas fa-envelope"></i> {t.buttons.emailKey}
+        </a>
         <button
           onClick={onReset}
           className="w-full py-2 px-4 text-gray-500 hover:text-gray-600 dark:text-gray-400 

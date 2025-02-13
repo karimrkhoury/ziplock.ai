@@ -6,6 +6,7 @@ import LanguageSwitcher from './components/LanguageSwitcher'
 import ZipLockLogo from './components/ZipLockLogo'
 import { ThemeProvider } from './context/ThemeContext'
 import { ThemeToggle } from './components/ThemeToggle'
+import EmailModal from './components/EmailModal'
 
 
 // Update formatFileSize function to be more precise with bytes
@@ -134,6 +135,7 @@ const App = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [githubStars, setGithubStars] = useState<number>(0);
   const [messageIndex, setMessageIndex] = useState(0);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
   const t = translations[language];
 
@@ -756,10 +758,10 @@ const App = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-3">
+                    <div className="flex flex-col gap-3">
                       <button
                         onClick={handleDownload}
-                        className="flex-1 py-2.5 bg-green-500/10 dark:bg-green-400/10
+                        className="w-full py-2.5 bg-green-500/10 dark:bg-green-400/10
                           text-green-600 dark:text-green-300 rounded-lg font-medium
                           hover:bg-green-500/20 dark:hover:bg-green-400/20
                           transition-all duration-200 flex items-center justify-center gap-2"
@@ -767,15 +769,19 @@ const App = () => {
                         <span>{t.buttons.download}</span>
                       </button>
 
-                      <button
-                        disabled
-                        className="flex-1 py-2.5 bg-blue-500/10 dark:bg-blue-400/10
+                      <a
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setIsEmailModalOpen(true);
+                        }}
+                        className="w-full py-2.5 bg-blue-500/10 dark:bg-blue-400/10
                           text-blue-600 dark:text-blue-300 rounded-lg font-medium
-                          opacity-50 cursor-not-allowed
-                          transition-all duration-200 flex items-center justify-center gap-2"
+                          hover:bg-blue-500/20 dark:hover:bg-blue-400/20
+                          transition-all duration-200 flex items-center justify-center gap-2
+                          cursor-pointer"
                       >
                         <span>{t.buttons.emailKey}</span>
-                      </button>
+                      </a>
                     </div>
                   </div>
 
@@ -896,6 +902,14 @@ const App = () => {
             </div>
           </div>
         </div>
+
+        <EmailModal
+          isOpen={isEmailModalOpen}
+          onClose={() => setIsEmailModalOpen(false)}
+          files={files}
+          lang={language}
+          zipBlob={zipBlob}
+        />
       </div>
     </ThemeProvider>
   )
