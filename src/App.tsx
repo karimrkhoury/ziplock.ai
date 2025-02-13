@@ -390,8 +390,8 @@ const App = () => {
         </div>
 
         {/* Main content - add flex-grow to push footer down */}
-        <div className="flex-grow">
-          <div className="max-w-2xl mx-auto p-8">
+        <div className="flex-1 flex flex-col">
+          <div className="max-w-2xl mx-auto p-8 pb-4">
             <div className="text-center mb-8">
               <ZipLockLogo 
                 lang={language}
@@ -815,9 +815,9 @@ const App = () => {
         </div>
 
         {/* Footer */}
-        <footer className="w-full py-4 px-4">
+        <footer className="w-full py-2 px-4">
           <div className="max-w-2xl mx-auto">
-            <div className="flex flex-col gap-2 text-center">
+            <div className="flex flex-col gap-1 text-center">
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 {t.security}
               </p>
