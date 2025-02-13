@@ -131,7 +131,6 @@ const App = () => {
   const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [progressMessage, setProgressMessage] = useState('');
-  const [funMessage, setFunMessage] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [githubStars, setGithubStars] = useState<number>(0);
   const [messageIndex, setMessageIndex] = useState(0);
@@ -151,24 +150,6 @@ const App = () => {
 
     return () => clearInterval(interval);
   }, [language, currentMessages.length]);
-
-  // Move the useEffect inside the component
-  useEffect(() => {
-    if (isProcessing) {
-      const messages = t.compression.funMessages;
-      let index = 0;
-      
-      const interval = setInterval(() => {
-        index = (index + 1) % messages.length;
-        setFunMessage(messages[index]);
-      }, 2000);
-
-      // Set initial message
-      setFunMessage(messages[0]);
-
-      return () => clearInterval(interval);
-    }
-  }, [isProcessing, language]);
 
   // Add useEffect to fetch stars count
   useEffect(() => {
@@ -643,10 +624,6 @@ const App = () => {
                                 }}
                               />
                             </div>
-                            {/* Rotating fun messages */}
-                            <div className="text-xs text-center text-gray-400 dark:text-gray-500 transition-all duration-300">
-                              {funMessage}
-                            </div>
                           </div>
                         </div>
 
@@ -838,24 +815,29 @@ const App = () => {
         </div>
 
         {/* Footer */}
-        <footer className="w-full py-6 px-4 mt-auto">
-          <div className="max-w-2xl mx-auto space-y-2 text-center">
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              {t.security}
-            </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500">
-              {t.credit}
-            </p>
-            <a 
-              href="https://github.com/karimrkhoury/ziplock.ai"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500
-                hover:text-gray-600 dark:hover:text-gray-400 transition-colors duration-200"
-            >
-              <span>⭐</span>
-              <span>{githubStars}</span>
-            </a>
+        <footer className="w-full py-4 px-4">
+          <div className="max-w-2xl mx-auto">
+            <div className="flex flex-col gap-2 text-center">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {t.security}
+              </p>
+              <div className={`flex items-center justify-center gap-2 text-xs text-gray-400 dark:text-gray-500
+                ${language === Language.AR ? 'flex-row-reverse' : ''}`}
+              >
+                <span>{t.credit}</span>
+                <span>•</span>
+                <a 
+                  href="https://github.com/karimrkhoury/ziplock.ai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1
+                    hover:text-gray-600 dark:hover:text-gray-400 transition-colors duration-200"
+                >
+                  <span>⭐</span>
+                  <span>{githubStars}</span>
+                </a>
+              </div>
+            </div>
           </div>
         </footer>
 
