@@ -33,9 +33,16 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, files, lang, z
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Upload failed');
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Server error:', errorData);
+        throw new Error(errorData.error || 'Upload failed');
+      }
 
-      const { downloadUrl } = await response.json();
+      const data = await response.json();
+      console.log('Upload response:', data);
+
+      const { downloadUrl } = data;
 
       const body = `Here are the files I want to share with you:\n\n${files
         .map((file) => `- ${file.name}`)
