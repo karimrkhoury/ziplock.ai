@@ -9,7 +9,6 @@ interface CompletedViewProps {
   onReset: () => void
   onEmail: () => void
   formatFileSize: (bytes: number) => string
-  selectedFiles: File[]
 }
 
 function CompletedView({ 
@@ -21,21 +20,10 @@ function CompletedView({
   onReset,
   onEmail,
   formatFileSize,
-  selectedFiles
 }: CompletedViewProps) {
   const t = translations[lang]
   const savedSize = originalSize - compressedSize
   const savedPercentage = Math.round((savedSize / originalSize) * 100)
-
-  const getEmailShareLink = () => {
-    const subject = encodeURIComponent('Files shared via ZipLock');
-    const body = encodeURIComponent(
-      `Here are the files I want to share with you:\n\n${selectedFiles
-        .map((file) => `- ${file.name}`)
-        .join('\n')}`
-    );
-    return `mailto:?subject=${subject}&body=${body}`;
-  };
 
   return (
     <div className="mt-8 space-y-6">
