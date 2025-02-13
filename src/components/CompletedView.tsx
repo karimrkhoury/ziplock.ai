@@ -66,20 +66,28 @@ function CompletedView({
       <div className="flex flex-col gap-3">
         <button
           onClick={onDownload}
-          className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-lg 
-            transition-colors duration-200"
+          className="w-full py-2.5 bg-green-500/10 dark:bg-green-400/10
+            text-green-600 dark:text-green-300 rounded-lg font-medium
+            hover:bg-green-500/20 dark:hover:bg-green-400/20
+            transition-all duration-200 flex items-center justify-center gap-2"
         >
-          {t.buttons.download}
+          <span>{t.buttons.download}</span>
         </button>
+
         <a
-          href={getEmailShareLink()}
-          onClick={onEmail}
-          className="w-full py-2 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 
-            dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg 
-            transition-colors duration-200 text-center flex items-center justify-center gap-2"
+          onClick={(e) => {
+            e.preventDefault();
+            onEmail();
+          }}
+          className="w-full py-2.5 bg-blue-500/10 dark:bg-blue-400/10
+            text-blue-600 dark:text-blue-300 rounded-lg font-medium
+            hover:bg-blue-500/20 dark:hover:bg-blue-400/20
+            transition-all duration-200 flex items-center justify-center gap-2
+            cursor-pointer"
         >
-          <i className="fas fa-envelope"></i> {t.buttons.emailKey}
+          <span>{t.buttons.emailKey}</span>
         </a>
+
         <button
           onClick={onReset}
           className="w-full py-2 px-4 text-gray-500 hover:text-gray-600 dark:text-gray-400 
