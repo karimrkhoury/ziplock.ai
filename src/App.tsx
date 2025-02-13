@@ -238,7 +238,9 @@ const App = () => {
         const zipWriter = new ZipWriter(blobWriter, {
           password,
           bufferedWrite: true,
-          keepOrder: true
+          keepOrder: true,
+          // Using DEFLATE with maximum compression
+          level: 9 // Maximum compression level
         });
 
         let processedSize = 0;
