@@ -389,9 +389,10 @@ const App = () => {
           </div>
         </div>
 
-        {/* Main content - add flex-grow to push footer down */}
+        {/* Main content wrapper - consistent across all states */}
         <div className="flex-1 flex flex-col">
           <div className="max-w-2xl mx-auto p-8 pb-4">
+            {/* Logo section */}
             <div className="text-center mb-8">
               <ZipLockLogo 
                 lang={language}
