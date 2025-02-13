@@ -2,8 +2,12 @@ import express from 'express';
 import multer from 'multer';
 import cors from 'cors';
 import { nanoid } from 'nanoid';
-import path from 'path';
-import fs from 'fs';
+import { 
+  S3Client, 
+  PutObjectCommand,
+  GetObjectCommand 
+} from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import dotenv from 'dotenv';
 
 // Load environment variables
@@ -17,47 +21,58 @@ const port = process.env.PORT || 3001;
 // Enable CORS
 app.use(cors());
 
-// Create uploads directory if it doesn't exist
-const uploadsDir = path.join(process.cwd(), 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir);
-}
-
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: uploadsDir,
-  filename: (req, file, cb) => {
-    const uniqueId = nanoid(10);
-    cb(null, `${uniqueId}-${file.originalname}`);
+// Initialize S3 client
+const s3Client = new S3Client({
+  region: process.env.S3_REGION,
+  credentials: {
+    accessKeyId: process.env.S3_ACCESS_KEY,
+    secretAccessKey: process.env.S3_SECRET_KEY
   }
 });
 
-// Add file size limit
-const maxFileSize = 500 * 1024 * 1024; // 500MB
+const BUCKET_NAME = process.env.S3_BUCKET_NAME;
 
-const upload = multer({ 
-  storage,
+// Configure multer for memory storage
+const upload = multer({
+  storage: multer.memoryStorage(),
   limits: {
-    fileSize: maxFileSize
+    fileSize: 500 * 1024 * 1024 // 500MB
   }
 });
 
 // Handle file uploads
-app.post('/upload', upload.single('file'), (req, res) => {
+app.post('/upload', upload.single('file'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
-  const downloadUrl = `${process.env.API_URL}/download/${req.file.filename}`;
-  res.json({ downloadUrl });
+  try {
+    const fileId = nanoid(10);
+    const key = `uploads/${fileId}/${req.file.originalname}`;
 
-  // Delete file after 24 hours
-  setTimeout(() => {
-    const filePath = path.join(uploadsDir, req.file.filename);
-    fs.unlink(filePath, (err) => {
-      if (err) console.error('Error deleting file:', err);
+    // Upload to S3
+    await s3Client.send(new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key,
+      Body: req.file.buffer,
+      ContentType: req.file.mimetype
+    }));
+
+    // Generate temporary download URL (24 hours)
+    const command = new GetObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: key
     });
-  }, 24 * 60 * 60 * 1000);
+    
+    const downloadUrl = await getSignedUrl(s3Client, command, { 
+      expiresIn: 24 * 60 * 60 // 24 hours
+    });
+
+    res.json({ downloadUrl });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: 'Failed to upload file' });
+  }
 });
 
 // Handle file downloads
