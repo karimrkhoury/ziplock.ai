@@ -37,6 +37,7 @@ export default defineConfig(({ mode }) => {
     base: './',
     envPrefix: 'VITE_',
     define: {
+      __API_URL__: JSON.stringify(env.VITE_API_URL),
       'import.meta.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL)
     }
   }
