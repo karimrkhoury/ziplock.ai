@@ -25,7 +25,9 @@ export default {
         'fade-message': 'fadeMessage 3s ease-in-out infinite',
         'cross-fade': 'crossFade 1s ease-in-out',
         'fade-out': 'fadeOut 0.2s ease-out forwards',
-        ripple: 'ripple 0.6s ease-out'
+        ripple: 'ripple 0.6s ease-out',
+        'number-increment': 'number-increment 1s ease-out forwards',
+        'achievement-pop': 'achievement-pop 0.6s ease-out forwards'
       },
       keyframes: {
         wiggle: {
@@ -108,6 +110,15 @@ export default {
         ripple: {
           '0%': { transform: 'scale(0)', opacity: '0.5' },
           '100%': { transform: 'scale(4)', opacity: '0' }
+        },
+        'number-increment': {
+          '0%': { transform: 'translateY(100%)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' }
+        },
+        'achievement-pop': {
+          '0%': { transform: 'scale(0.8)', opacity: '0' },
+          '50%': { transform: 'scale(1.1)' },
+          '100%': { transform: 'scale(1)', opacity: '1' }
         }
       },
       backgroundImage: {

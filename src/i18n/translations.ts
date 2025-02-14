@@ -51,8 +51,7 @@ export const translations = {
       title: "Mission Accomplished!",
       message: "Your files are ready to share!",
       passwordReminder: {
-        keep: "🔑 Don't forget your password! Keep it somewhere safe",
-        warning: "⚠️ We can't recover it if you lose it!",
+        warning: "🔑 Save this password - it can't be recovered if lost",
         tips: [
           "Write it down (not on a sticky note on your screen 😅)",
           "Store it in your password manager 🔐",
@@ -69,6 +68,7 @@ export const translations = {
     },
     donation: {
       support: "Saved you some time? Support me 👇",
+      supportMessage: "Help keep ziplock free & secure for everyone! 🚀",
       messages: [
         "Feed a hungry dev 🥙",
         "Support my shawarma addiction 🌯",
@@ -80,7 +80,7 @@ export const translations = {
         "Buy me a late night coding snack 🌙"
       ]
     },
-    security: "🔒 All zipping & encryption happens in your browser - your data never leaves your device",
+    security: "🛡️ Zero-knowledge encryption: your password never leaves your device. Files are encrypted in-browser using Web Crypto API, then stored on AWS S3 with server-side encryption. Auto-deleted after 24h. We can't access your files - only you have the key 🔒",
     credit: "Coded with ❤️ by Karim",
     fileList: {
       filesReady: "file ready for encryption",
@@ -97,7 +97,8 @@ export const translations = {
     success: {
       fileAdded: "Files added successfully! ✨",
       copied: "Copied to clipboard! ✨",
-      linkCopied: "Link and password copied! ✨"
+      linkCopied: "Link copied! ✨",
+      passwordCopied: "Password copied! ✨"
     },
     errors: {
       tooLarge: "File too large: ",
@@ -232,8 +233,7 @@ export const translations = {
       title: "تمت المهمة بنجاح!",
       message: "ملفاتك جاهزة للمشاركة!",
       passwordReminder: {
-        keep: "🔑 لا تنسى كلمة السر! حافظ عليها في مكان آمن",
-        warning: "⚠️ لن نستطيع استعادة كلمة السر إذا نسيتها",
+        warning: "🔑 احفظ كلمة السر - لا يمكن استعادتها إذا فقدت",
         tips: [
           "😅 اكتبها في مكان آمن (ليس على ورقة ملصقة على شاشتك)",
           "🔐 احفظها في برنامج إدارة كلمات المرور",
@@ -296,10 +296,10 @@ export const translations = {
     },
     donation: {
       support: "وفرت عليك بعض الوقت؟ ادعمني 👇",
+      supportMessage: "ساعدنا في إبقاء <bdi>ziplock</bdi> مجانياً وآمناً للجميع! 🚀",
       messages: [
-        "اطعم مبرمجاً جائعاً 🥙",
+        "ساعدني في شراء قهوة البرمجة ☕️",
         "ادعم إدماني على الشاورما 🌯",
-        "ساعدني في شراء قهوة البرمجة ☕",
         "حافظ على فنجان قهوتي ممتلئاً ✨",
         "شاورما أكثر = ميزات أكثر 🚀",
         "يعمل على طاقة الشاورما! 🔋",
@@ -307,7 +307,7 @@ export const translations = {
         "اشترِ لي وجبة البرمجة الليلية 🌙"
       ]
     },
-    security: "🔒 كل الضغط والتشفير يتم في متصفحك - بياناتك لا تغادر جهازك أبداً",
+    security: "🛡️ تشفير بمعرفة صفرية: كلمة السر لا تغادر جهازك أبداً. يتم تشفير الملفات في المتصفح باستخدام <bdi>Web Crypto API</bdi>، ثم تخزينها في <bdi>AWS S3</bdi> مع تشفير إضافي. حذف تلقائي بعد ٢٤ ساعة. لا يمكننا الوصول لملفاتك - أنت فقط تملك المفتاح 🔒",
     credit: "بُرمج بحب ❤️ من كريم",
     fileList: {
       filesReady: "ملف جاهز للتشفير",
@@ -324,7 +324,8 @@ export const translations = {
     success: {
       fileAdded: "تمت إضافة الملفات بنجاح! ✨",
       copied: "تم النسخ إلى الحافظة! ✨",
-      linkCopied: "!تم نسخ الرابط وكلمة المرور ✨"
+      linkCopied: "تم نسخ الرابط! ✨",
+      passwordCopied: "تم نسخ كلمة المرور! ✨"
     },
     errors: {
       tooLarge: "حجم الملف كبير جداً: ",

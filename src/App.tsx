@@ -7,6 +7,7 @@ import ZipLockLogo from './components/ZipLockLogo'
 import { ThemeProvider } from './context/ThemeContext'
 import { ThemeToggle } from './components/ThemeToggle'
 import CompletedView from './components/CompletedView'
+import { RichText } from './components/RichText'
 
 
 // Update formatFileSize function to be more precise with bytes
@@ -86,6 +87,20 @@ interface CompressionStats {
   processingTime: number;
 }
 
+// Add this near the top of the file
+const mockUpload = async (_file: Blob): Promise<{ downloadUrl: string }> => {
+  // Simulate network delay
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  
+  // Generate a mock file ID
+  const mockId = Math.random().toString(36).substring(2, 8);
+  
+  // Return a mock URL
+  return {
+    downloadUrl: `https://ziplock.me/d/${mockId}`
+  };
+};
+
 const App = () => {
   // Remove unused states
   const [language, setLanguage] = useState<Language>(Language.EN);
@@ -135,7 +150,7 @@ const App = () => {
       setProgress(0);
       setError(null);
       
-      // Compression phase (0-70%)
+      // Compression phase (0-90%)
       const compressionPromise = (async () => {
         const blobWriter = new BlobWriter();
         const zipWriter = new ZipWriter(blobWriter, {
@@ -157,7 +172,8 @@ const App = () => {
             onprogress: async (current: number, total: number) => {
               const fileProgress = (current / total) * file.size;
               const totalProgress = ((processedSize + fileProgress) / totalSize) * 100;
-              const displayProgress = Math.min(70, Math.floor(totalProgress * 0.7));
+              // Use 90% of the progress bar for compression
+              const displayProgress = Math.min(90, Math.floor(totalProgress * 0.9));
               setProgress(displayProgress);
               setProgressMessage(t.compression.messages[Math.floor(displayProgress / 10)]);
             }
@@ -171,37 +187,55 @@ const App = () => {
 
       // Wait for compression
       const content = await compressionPromise;
-      setProgress(70);
-      setProgressMessage(t.compression.messages[7]); // "Digital Marie Kondo in progress..."
+      setProgress(90);
+      setProgressMessage(t.compression.messages[8]); // "Almost there!"
 
-      // Upload phase (70-100%)
+      // Upload phase (90-100%)
       const formData = new FormData();
       formData.append('file', new Blob([content]), 'ziplocked-files.zip');
       
-      // Use XMLHttpRequest for upload progress
       const uploadPromise = new Promise<{ downloadUrl: string }>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        
-        xhr.upload.onprogress = (event) => {
-          if (event.lengthComputable) {
-            const uploadProgress = (event.loaded / event.total) * 30; // 30% of total progress
-            setProgress(70 + Math.floor(uploadProgress));
-            setProgressMessage(t.compression.messages[8]); // "Almost there! Final squish..."
-          }
-        };
+        if (import.meta.env.DEV) {
+          // Use mock upload with realistic timing
+          mockUpload(new Blob([content]))
+            .then(resolve)
+            .catch(reject);
+          
+          // Show upload progress (90-100%)
+          let progress = 90;
+          const interval = setInterval(() => {
+            progress += 2;
+            if (progress <= 100) {
+              setProgress(progress);
+              setProgressMessage(t.compression.messages[9]); // "Polishing the results..."
+            }
+            if (progress >= 100) clearInterval(interval);
+          }, 300); // Slower increment for more realistic feel
+        } else {
+          // Real upload
+          const xhr = new XMLHttpRequest();
+          
+          xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable) {
+              const uploadProgress = (event.loaded / event.total) * 10; // Last 10%
+              setProgress(90 + Math.floor(uploadProgress));
+              setProgressMessage(t.compression.messages[9]);
+            }
+          };
 
-        xhr.onload = () => {
-          if (xhr.status === 200) {
-            resolve(JSON.parse(xhr.responseText));
-          } else {
-            reject(new Error(`Upload failed: ${xhr.statusText}`));
-          }
-        };
+          xhr.onload = () => {
+            if (xhr.status === 200) {
+              resolve(JSON.parse(xhr.responseText));
+            } else {
+              reject(new Error(`Upload failed: ${xhr.statusText}`));
+            }
+          };
 
-        xhr.onerror = () => reject(new Error('Upload failed'));
+          xhr.onerror = () => reject(new Error('Upload failed'));
 
-        xhr.open('POST', `${import.meta.env.VITE_API_URL}/upload`);
-        xhr.send(formData);
+          xhr.open('POST', `${import.meta.env.VITE_API_URL}/upload`);
+          xhr.send(formData);
+        }
       });
 
       const { downloadUrl } = await uploadPromise;
@@ -293,31 +327,6 @@ const App = () => {
       document.removeEventListener('touchstart', handleClickOutside);
     };
   }, [isMobileMenuOpen]);
-
-  // Update the email share handler
-  const handleEmailShare = () => {
-    if (!zipBlob || !password) return;
-
-    const body = `
-🚀 Files sent with love via ZipLock!
-
-📦 Contents:
-${files.map((file) => `• ${file.name} (${formatFileSize(file.size, language)})`).join('\n')}
-
-🔐 Your secret password:
-${password}
-
-📥 Download your files:
-${downloadUrl}
-
-⏰ Note: This link will self-destruct in 24 hours!
-
-🔒 Secured with love by ziplock.me
-`;
-
-    const mailtoUrl = `mailto:?subject=Files shared via ZipLock&body=${encodeURIComponent(body)}`;
-    window.location.href = mailtoUrl;
-  };
 
   useEffect(() => {
     console.log('Environment check:', {
@@ -653,15 +662,13 @@ ${downloadUrl}
 
                           {/* Tooltip - Only shows on hover when password is invalid */}
                           {(!password || password.length < 8) && (
-                            <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-max
-                              px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-sm
-                              rounded-lg shadow-lg opacity-0 group-hover:opacity-100
-                              transition-opacity duration-200 pointer-events-none"
+                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 
+                              whitespace-nowrap px-2 py-1 text-xs font-medium
+                              bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 
+                              rounded-md opacity-0 group-hover:opacity-100
+                              transition-all duration-200 pointer-events-none"
                             >
                               {t.validation.passwordTip}
-                              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2
-                                border-8 border-transparent border-t-gray-900 dark:border-t-gray-700"
-                              />
                             </div>
                           )}
                         </div>
@@ -676,8 +683,6 @@ ${downloadUrl}
                   compressedSize={compressionStats?.compressedSize || 0}
                   processingTime={compressionStats?.processingTime || 0}
                   onDownload={handleDownload}
-                  onReset={handleReset}
-                  onEmail={handleEmailShare}
                   formatFileSize={(bytes) => formatFileSize(bytes, language)}
                   downloadUrl={downloadUrl}
                   password={password}
@@ -696,45 +701,36 @@ ${downloadUrl}
 
         {/* Footer */}
         <footer className="w-full py-2 px-4">
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto flex flex-col items-center">
             <div className="flex flex-col gap-1 text-center">
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {t.security}
-              </p>
-              <div className={`flex items-center justify-center gap-2 text-xs text-gray-400 dark:text-gray-500
-                ${language === Language.AR ? 'flex-row-reverse' : ''}`}
-              >
-                <span>{t.credit}</span>
-                <span>•</span>
-                <a 
-                  href="https://github.com/karimrkhoury/ziplock.ai"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1
-                    hover:text-gray-600 dark:hover:text-gray-400 transition-colors duration-200"
-                >
-                  <span>⭐</span>
-                  <span>{githubStars}</span>
-                </a>
+              <div className="text-center mt-8">
+                <RichText
+                  text={t.security}
+                  className={`text-[11px] leading-relaxed text-gray-500 dark:text-gray-500 
+                    w-full max-w-md mx-auto tracking-tight text-center block
+                    ${language === Language.AR ? 'dir-rtl' : 'dir-ltr'}`}
+                />
               </div>
-              <a
-                href="https://pay.ziina.com/khourykarim"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`
-                  inline-flex items-center justify-center
-                  px-4 py-2 rounded-lg
-                  bg-orange-100 hover:bg-orange-200 
-                  dark:bg-orange-500/20 dark:hover:bg-orange-500/30
-                  text-orange-600 dark:text-orange-300
-                  font-medium
-                  transform transition-all duration-200
-                  hover:scale-100 active:scale-100
-                  ${language === Language.AR ? 'text-right' : 'text-left'}
-                `}
-              >
-                {t.donation.messages[Math.floor(Math.random() * t.donation.messages.length)]}
-              </a>
+
+              {/* Credit */}
+              <div className="mt-4 text-center">
+                <div className={`flex items-center justify-center gap-2 text-xs text-gray-400 dark:text-gray-500
+                  ${language === Language.AR ? 'flex-row-reverse' : ''}`}
+                >
+                  <span>{t.credit}</span>
+                  <span>•</span>
+                  <a 
+                    href="https://github.com/karimrkhoury/ziplock.ai"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1
+                      hover:text-gray-600 dark:hover:text-gray-400 transition-colors duration-200"
+                  >
+                    <span>⭐</span>
+                    <span>{githubStars}</span>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </footer>
