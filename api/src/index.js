@@ -64,17 +64,11 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   }
 
   try {
-    console.log('Uploading file:', {
-      name: req.file.originalname,
-      size: req.file.size,
-      type: req.file.mimetype
-    });
-
-    const fileId = nanoid(10);
+    // Generate shorter ID
+    const fileId = nanoid(6); // 6 chars instead of 10
     const key = `uploads/${fileId}/${req.file.originalname}`;
 
     // Upload to S3
-    console.log('Uploading to S3:', { bucket: BUCKET_NAME, key });
     await s3Client.send(new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
@@ -82,21 +76,35 @@ app.post('/upload', upload.single('file'), async (req, res) => {
       ContentType: req.file.mimetype
     }));
 
-    // Generate URL
+    // Return a super short URL
+    const downloadUrl = `https://ziplock.me/d/${fileId}`;
+    res.json({ downloadUrl });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Add download endpoint to handle the redirect
+app.get('/files/:fileId', async (req, res) => {
+  try {
+    const { fileId } = req.params;
+    const key = `uploads/${fileId}/ziplocked-files.zip`;
+
     const command = new GetObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key
     });
     
-    const downloadUrl = await getSignedUrl(s3Client, command, { 
-      expiresIn: 24 * 60 * 60
+    const url = await getSignedUrl(s3Client, command, { 
+      expiresIn: 24 * 60 * 60 
     });
 
-    console.log('Upload successful, returning URL:', downloadUrl);
-    res.json({ downloadUrl });
+    // Redirect to the actual S3 URL
+    res.redirect(url);
   } catch (error) {
-    console.error('Upload error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Download error:', error);
+    res.status(500).json({ error: 'File not found' });
   }
 });
 

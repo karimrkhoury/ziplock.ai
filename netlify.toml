@@ -28,5 +28,11 @@
   [headers.values]
     Content-Type = "text/javascript"
 
+[[redirects]]
+  from = "/d/*"
+  to = "https://ziplockai-production.up.railway.app/files/:splat"
+  status = 200
+  force = true
+
 [build.processing]
   skip_processing = false 
