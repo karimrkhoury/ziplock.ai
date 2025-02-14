@@ -20,22 +20,24 @@ const getWhatsAppMessage = (downloadUrl: string, password: string, lang: Languag
 رابط التحميل:
 ${downloadUrl}
 
-كلمة السر: ${password}
+*كلمة السر:*
+${password}
 
 ⏳ الرابط صالح لمدة ٢٤ ساعة فقط
 ───────────
-تم التأمين بواسطة ziplock.me ✨`;
+ضغط. تشفير. مشاركة ✨`;
   }
   return `I've prepared encrypted & compressed files using ziplock.me 🔒
 
 Download link:
 ${downloadUrl}
 
-Password: ${password}
+*Password:*
+${password}
 
 ⏳ Link valid for 24 hours only
 ───────────
-Secured with ziplock.me ✨`;
+zip. lock. ship ✨`;
 };
 
 const getEmailMessage = (downloadUrl: string, password: string, lang: Language) => {
@@ -49,7 +51,7 @@ ${downloadUrl}
 
 ⏳ الرابط صالح لمدة ٢٤ ساعة فقط
 ───────────
-تم التأمين بواسطة ziplock.me ✨`;
+ضغط. تشفير. مشاركة ✨`;
   }
   return `I've prepared encrypted & compressed files using ziplock.me 🔒
 
@@ -60,7 +62,7 @@ Password: ${password}
 
 ⏳ Link valid for 24 hours only
 ───────────
-Secured with ziplock.me ✨`;
+zip. lock. ship ✨`;
 };
 
 function CompletedView({ 
