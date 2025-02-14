@@ -65,9 +65,27 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, files, lang, z
         throw new Error('No download URL in response');
       }
 
-      const body = `Here are the files I want to share with you:\n\n${files
-        .map((file) => `- ${file.name}`)
-        .join('\n')}\n\nDownload your files here:\n${data.downloadUrl}`;
+      const body = `
+🚀 Files sent with love via ZipLock!
+
+📦 Contents:
+${files.map((file) => `• ${file.name} (${formatFileSize(file.size)})`).join('\n')}
+
+🔐 Your secret password:
+${password}
+
+📥 Download your files:
+${data.downloadUrl}
+
+⚡️ Quick Instructions:
+1. Click the download link
+2. Enter the password when prompted
+3. Enjoy your files!
+
+⏰ Note: This link will self-destruct in 24 hours!
+
+🔒 Secured with love by ziplock.me
+`;
 
       const mailtoUrl = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       window.location.href = mailtoUrl;
@@ -79,6 +97,15 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, files, lang, z
     } finally {
       setIsUploading(false);
     }
+  };
+
+  // Format file size helper
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
   };
 
   if (!isOpen) return null;
