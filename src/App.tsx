@@ -136,6 +136,7 @@ const App = () => {
   const [githubStars, setGithubStars] = useState<number>(0);
   const [messageIndex, setMessageIndex] = useState(0);
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   const t = translations[language];
 
@@ -342,6 +343,16 @@ const App = () => {
       document.removeEventListener('touchstart', handleClickOutside);
     };
   }, [isMobileMenuOpen]);
+
+  // Update the email modal state handling
+  const handleEmailShare = () => {
+    if (!zipBlob) {
+      setEmailError(t.email.noFile);
+      return;
+    }
+    setIsEmailModalOpen(true);
+    setEmailError(null);
+  };
 
   return (
     <ThemeProvider>
@@ -772,7 +783,7 @@ const App = () => {
                       <a
                         onClick={(e) => {
                           e.preventDefault();
-                          setIsEmailModalOpen(true);
+                          handleEmailShare();
                         }}
                         className="w-full py-2.5 bg-blue-500/10 dark:bg-blue-400/10
                           text-blue-600 dark:text-blue-300 rounded-lg font-medium
@@ -905,10 +916,15 @@ const App = () => {
 
         <EmailModal
           isOpen={isEmailModalOpen}
-          onClose={() => setIsEmailModalOpen(false)}
+          onClose={() => {
+            setIsEmailModalOpen(false);
+            setEmailError(null);
+          }}
           files={files}
           lang={language}
           zipBlob={zipBlob}
+          error={emailError}
+          onError={setEmailError}
         />
       </div>
     </ThemeProvider>
