@@ -191,6 +191,7 @@ export const translations = {
       message: 'Message',
       uploading: 'Uploading...',
       uploadError: 'Failed to upload files. Please try again.',
+      noFile: 'No file available to upload.',
     },
   },
   ar: {
@@ -374,6 +375,7 @@ export const translations = {
       message: 'الرسالة',
       uploading: '...جاري الرفع',
       uploadError: '.فشل رفع الملفات. يرجى المحاولة مرة أخرى',
+      noFile: 'لا يوجد ملف للرفع.',
     },
   }
 } as const;

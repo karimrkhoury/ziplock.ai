@@ -18,9 +18,9 @@ const port = process.env.PORT || 3001;
 
 // Enable CORS with specific origin
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? 'https://ziplock.me'
-    : 'http://localhost:5173'
+  origin: ['https://ziplock.me', 'http://localhost:5173'],
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type']
 }));
 
 // Initialize S3 client

@@ -20,6 +20,7 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, files, lang, z
     e.preventDefault();
     if (!zipBlob) {
       console.error('No zipBlob available');
+      setUploadError(t.email.noFile);
       return;
     }
 
@@ -37,31 +38,35 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, files, lang, z
       const response = await fetch(apiUrl, {
         method: 'POST',
         body: formData,
+        headers: {
+          'Accept': 'application/json',
+        },
       });
 
-      console.log('Response status:', response.status);
-      const responseText = await response.text();
-      console.log('Response text:', responseText);
-
       if (!response.ok) {
-        console.error('Upload failed:', response.status, responseText);
-        throw new Error('Upload failed');
+        const errorText = await response.text();
+        console.error('Upload failed:', response.status, errorText);
+        throw new Error(`Upload failed: ${errorText}`);
       }
 
-      const data = JSON.parse(responseText);
+      const data = await response.json();
       console.log('Upload successful:', data);
 
-      const { downloadUrl } = data;
+      if (!data.downloadUrl) {
+        throw new Error('No download URL in response');
+      }
 
       const body = `Here are the files I want to share with you:\n\n${files
         .map((file) => `- ${file.name}`)
-        .join('\n')}\n\nDownload your files here:\n${downloadUrl}`;
+        .join('\n')}\n\nDownload your files here:\n${data.downloadUrl}`;
 
-      window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const mailtoUrl = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = mailtoUrl;
+      
       onClose();
     } catch (error) {
       console.error('Upload error:', error);
-      setUploadError(t.email.uploadError);
+      setUploadError(error instanceof Error ? error.message : t.email.uploadError);
     } finally {
       setIsUploading(false);
     }
