@@ -85,11 +85,15 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   }
 });
 
-// Add download endpoint to handle the redirect
+// Update the files endpoint
 app.get('/files/:fileId', async (req, res) => {
   try {
     const { fileId } = req.params;
+    console.log('Fetching file:', fileId);
+    
+    // Look for the zip file in the folder
     const key = `uploads/${fileId}/ziplocked-files.zip`;
+    console.log('S3 Key:', key);
 
     const command = new GetObjectCommand({
       Bucket: BUCKET_NAME,
@@ -100,11 +104,16 @@ app.get('/files/:fileId', async (req, res) => {
       expiresIn: 24 * 60 * 60 
     });
 
-    // Redirect to the actual S3 URL
+    console.log('Generated URL:', url);
+    
+    // Redirect to the signed URL
     res.redirect(url);
   } catch (error) {
     console.error('Download error:', error);
-    res.status(500).json({ error: 'File not found' });
+    res.status(500).json({ 
+      error: 'File not found',
+      details: error.message 
+    });
   }
 });
 
