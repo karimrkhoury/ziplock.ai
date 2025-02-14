@@ -1,3 +1,10 @@
+# Dependencies
+node_modules
+dist
+build
+/.pnp
+.pnp.js
+
 # Environment variables
 .env
 .env.*
@@ -5,10 +12,8 @@
 api/.env.*
 !api/.env.example
 
-# Dependencies
-node_modules
-dist
-build
+# Testing
+/coverage
 
 # Logs
 npm-debug.log*
@@ -16,13 +21,16 @@ yarn-debug.log*
 yarn-error.log*
 
 # Editor directories and files
-.vscode
+.vscode/*
+!.vscode/extensions.json
 .idea
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.swp
+*.swo
 
 # OS generated files
 .DS_Store
@@ -35,14 +43,6 @@ Thumbs.db
 
 # API uploads directory
 api/uploads
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
 
 # misc
 .env.local
