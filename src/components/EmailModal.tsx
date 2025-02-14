@@ -9,9 +9,10 @@ interface EmailModalProps {
   zipBlob: Blob | null;
   error: string | null;
   onError: (error: string | null) => void;
+  password: string;
 }
 
-const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, files, lang, zipBlob, error, onError }) => {
+const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, files, lang, zipBlob, error, onError, password }) => {
   const [to, setTo] = useState('');
   const [subject, setSubject] = useState('Files shared via ZipLock');
   const [isUploading, setIsUploading] = useState(false);

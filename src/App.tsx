@@ -934,6 +934,7 @@ const App = () => {
           zipBlob={zipBlob}
           error={emailError}
           onError={setEmailError}
+          password={password}
         />
       </div>
     </ThemeProvider>
