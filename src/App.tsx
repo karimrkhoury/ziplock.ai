@@ -6,7 +6,6 @@ import LanguageSwitcher from './components/LanguageSwitcher'
 import ZipLockLogo from './components/ZipLockLogo'
 import { ThemeProvider } from './context/ThemeContext'
 import { ThemeToggle } from './components/ThemeToggle'
-import EmailModal from './components/EmailModal'
 
 
 // Update formatFileSize function to be more precise with bytes
@@ -135,8 +134,6 @@ const App = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [githubStars, setGithubStars] = useState<number>(0);
   const [messageIndex, setMessageIndex] = useState(0);
-  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-  const [emailError, setEmailError] = useState<string | null>(null);
 
   const t = translations[language];
 
@@ -344,14 +341,29 @@ const App = () => {
     };
   }, [isMobileMenuOpen]);
 
-  // Update the email modal state handling
+  // Update the email share handler
   const handleEmailShare = () => {
-    if (!zipBlob) {
-      setEmailError(t.email.noFile);
-      return;
-    }
-    setIsEmailModalOpen(true);
-    setEmailError(null);
+    if (!zipBlob || !password) return;
+
+    const body = `
+🚀 Files sent with love via ZipLock!
+
+📦 Contents:
+${files.map((file) => `• ${file.name} (${formatFileSize(file.size, language)})`).join('\n')}
+
+🔐 Your secret password:
+${password}
+
+📥 Download your files:
+${downloadUrl}
+
+⏰ Note: This link will self-destruct in 24 hours!
+
+🔒 Secured with love by ziplock.me
+`;
+
+    const mailtoUrl = `mailto:?subject=Files shared via ZipLock&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
   };
 
   useEffect(() => {
@@ -922,20 +934,6 @@ const App = () => {
             </div>
           </div>
         </div>
-
-        <EmailModal
-          isOpen={isEmailModalOpen}
-          onClose={() => {
-            setIsEmailModalOpen(false);
-            setEmailError(null);
-          }}
-          files={files}
-          lang={language}
-          zipBlob={zipBlob}
-          error={emailError}
-          onError={setEmailError}
-          password={password}
-        />
       </div>
     </ThemeProvider>
   )
