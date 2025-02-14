@@ -355,7 +355,12 @@ const App = () => {
   };
 
   useEffect(() => {
-    console.log('API URL:', import.meta.env.VITE_API_URL);
+    console.log('Environment check:', {
+      VITE_API_URL: import.meta.env.VITE_API_URL,
+      isDev: import.meta.env.DEV,
+      mode: import.meta.env.MODE,
+      base: import.meta.env.BASE_URL
+    });
   }, []);
 
   return (
