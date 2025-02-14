@@ -31,8 +31,12 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, files, lang, z
       const formData = new FormData();
       formData.append('file', zipBlob, 'ziplocked-files.zip');
 
+      if (!import.meta.env.VITE_API_URL) {
+        throw new Error('API URL not configured');
+      }
+
       const apiUrl = `${import.meta.env.VITE_API_URL}/upload`;
-      console.log('Uploading to:', apiUrl);
+      console.log('Uploading to:', apiUrl, 'API URL:', import.meta.env.VITE_API_URL);
       
       const response = await fetch(apiUrl, {
         method: 'POST',
