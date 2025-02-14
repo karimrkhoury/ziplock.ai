@@ -116,7 +116,7 @@ interface CompressionStats {
 }
 
 const App = () => {
-  // Basic states
+  // Remove unused states
   const [language, setLanguage] = useState<Language>(Language.EN);
   const [files, setFiles] = useState<File[]>([]);
   const [password, setPassword] = useState('');
@@ -134,6 +134,7 @@ const App = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [githubStars, setGithubStars] = useState<number>(0);
   const [messageIndex, setMessageIndex] = useState(0);
+  const [downloadUrl, setDownloadUrl] = useState<string>('');  // Add this for email sharing
 
   const t = translations[language];
 
@@ -253,11 +254,22 @@ const App = () => {
       // Wait for both simulation and compression
       const [content] = await Promise.all([compressionPromise, simulationPromise]);
 
-      // Ensure we reach 100% with a small delay
+      // Upload to get the URL first
+      const formData = new FormData();
+      formData.append('file', new Blob([content]), 'ziplocked-files.zip');
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+      setDownloadUrl(data.downloadUrl); // Save the URL for email sharing
+      
+      // Then update the UI
       setProgress(100);
       setProgressMessage(t.compression.messages[t.compression.messages.length - 1]);
       
-      // Calculate final processing time
       const endTime = performance.now();
       const processingTime = ((endTime - startTime) / 1000).toFixed(1);
 
@@ -270,9 +282,9 @@ const App = () => {
       setCompressionStats(stats);
       setZipBlob(content);
       setIsCompleted(true);
-      
+
     } catch (error) {
-      console.error('Compression error:', error); // Keep this one for error tracking
+      console.error('Compression error:', error);
       setError(error instanceof Error ? error.message : t.validation.encryptionFailed);
     } finally {
       setIsProcessing(false);
@@ -284,7 +296,6 @@ const App = () => {
   // Update the reset handler
   const handleReset = () => {
     setIsResetting(true);
-    // Wait for fade out animation
     setTimeout(() => {
       setFiles([]);
       setPassword('');
@@ -292,8 +303,9 @@ const App = () => {
       setZipBlob(null);
       setError(null);
       setCompressionStats(null);
+      setDownloadUrl(''); // Clear the download URL
       setIsResetting(false);
-    }, 200); // Match this with the transition duration
+    }, 200);
   };
 
   // Update the showSnackbar function

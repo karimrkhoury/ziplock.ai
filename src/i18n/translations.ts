@@ -185,14 +185,6 @@ export const translations = {
       ],
       clipboardError: "Magic worked but clipboard failed! Password is shown above ✨"
     },
-    email: {
-      to: 'To',
-      subject: 'Subject',
-      message: 'Message',
-      uploading: 'Uploading...',
-      uploadError: 'Failed to upload files. Please try again.',
-      noFile: 'No file available to upload.',
-    },
   },
   ar: {
     tagline: {
@@ -368,14 +360,6 @@ export const translations = {
         "كلمة مرور كمية آمنة في حافظتك! 🤖"
       ],
       clipboardError: "نجح السحر لكن فشل النسخ! كلمة المرور معروضة أعلاه ✨"
-    },
-    email: {
-      to: 'إلى',
-      subject: 'الموضوع',
-      message: 'الرسالة',
-      uploading: '...جاري الرفع',
-      uploadError: '.فشل رفع الملفات. يرجى المحاولة مرة أخرى',
-      noFile: 'لا يوجد ملف للرفع.',
     },
   }
 } as const;
