@@ -12,6 +12,7 @@ interface CompletedViewProps {
   formatFileSize: (bytes: number) => string
   downloadUrl: string
   password: string
+  showSnackbar: (message: string) => void
 }
 
 function CompletedView({ 
@@ -24,7 +25,8 @@ function CompletedView({
   onEmail,
   formatFileSize,
   downloadUrl,
-  password
+  password,
+  showSnackbar
 }: CompletedViewProps) {
   const t = translations[lang]
   const savedSize = originalSize - compressedSize

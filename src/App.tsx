@@ -6,6 +6,7 @@ import LanguageSwitcher from './components/LanguageSwitcher'
 import ZipLockLogo from './components/ZipLockLogo'
 import { ThemeProvider } from './context/ThemeContext'
 import { ThemeToggle } from './components/ThemeToggle'
+import CompletedView from './components/CompletedView'
 
 
 // Update formatFileSize function to be more precise with bytes
@@ -58,34 +59,6 @@ const generateSecurePassword = () => {
   return password;
 };
 
-// Update the message selection to be more stable
-const getProgressMessage = (progress: number, t: typeof translations[Language]): string => {
-  const messages = t.compression.messages;
-  const index = Math.min(
-    Math.floor(progress / 20),
-    messages.length - 1
-  );
-  return messages[index];
-};
-
-// Update simulation for smoother progress
-const simulateProgress = (
-  onProgress: (progress: number) => void,
-  duration: number = 2000,
-  steps: number = 0.005 // One step per 1%
-) => {
-  let currentStep = 0;
-  const interval = setInterval(() => {
-    currentStep++;
-    // Linear progress for more predictable percentage display
-    const progress = Math.min(100, currentStep);
-    onProgress(progress);
-    if (currentStep >= steps) clearInterval(interval);
-  }, duration / steps);
-
-  return interval;
-};
-
 // Add this helper function to make filenames unique
 const getUniqueFileName = (existingNames: Set<string>, originalName: string): string => {
   if (!existingNames.has(originalName)) {
@@ -105,8 +78,6 @@ const getUniqueFileName = (existingNames: Set<string>, originalName: string): st
   existingNames.add(newName);
   return newName;
 };
-
-// Define the donation message type properly
 
 // Add this type for the compression stats
 interface CompressionStats {
@@ -133,40 +104,9 @@ const App = () => {
   const [progressMessage, setProgressMessage] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [githubStars, setGithubStars] = useState<number>(0);
-  const [messageIndex, setMessageIndex] = useState(0);
   const [downloadUrl, setDownloadUrl] = useState<string>('');  // Add this for email sharing
 
   const t = translations[language];
-
-  // Keep only what we need
-  const currentMessages = translations[language].donation.messages;
-  const currentMessage = currentMessages[messageIndex];
-
-  useEffect(() => {
-    setMessageIndex(0);
-    
-    const interval = setInterval(() => {
-      setMessageIndex(prevIndex => (prevIndex + 1) % currentMessages.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [language, currentMessages.length]);
-
-  // Add useEffect to fetch stars count
-  useEffect(() => {
-    const fetchGithubStars = async () => {
-      try {
-        const response = await fetch('https://api.github.com/repos/karimrkhoury/ziplock.ai');
-        const data = await response.json();
-        setGithubStars(data.stargazers_count);
-      } catch (error) {
-        console.error('Error fetching GitHub stars:', error);
-        // Keep the default 0 if there's an error
-      }
-    };
-
-    fetchGithubStars();
-  }, []); // Fetch once when component mounts
 
   const MAX_TOTAL_SIZE = 500 * 1024 * 1024; // 500MB
 
@@ -214,7 +154,7 @@ const App = () => {
           const uniqueName = getUniqueFileName(usedNames, file.name);
           
           await zipWriter.add(uniqueName, fileReader, {
-            onprogress: (current: number, total: number) => {
+            onprogress: async (current: number, total: number) => {
               const fileProgress = (current / total) * file.size;
               const totalProgress = ((processedSize + fileProgress) / totalSize) * 100;
               const displayProgress = Math.min(70, Math.floor(totalProgress * 0.7));
@@ -387,6 +327,22 @@ ${downloadUrl}
       base: import.meta.env.BASE_URL
     });
   }, []);
+
+  // Add back the useEffect to fetch stars
+  useEffect(() => {
+    const fetchGithubStars = async () => {
+      try {
+        const response = await fetch('https://api.github.com/repos/karimrkhoury/ziplock.ai');
+        const data = await response.json();
+        setGithubStars(data.stargazers_count);
+      } catch (error) {
+        console.error('Error fetching GitHub stars:', error);
+        // Keep the default 0 if there's an error
+      }
+    };
+
+    fetchGithubStars();
+  }, []); // Fetch once when component mounts
 
   return (
     <ThemeProvider>
@@ -714,147 +670,19 @@ ${downloadUrl}
                   )}
                 </div>
               ) : (
-                <div className="animate-fade-in space-y-4">
-                  <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
-                    <div className="text-center mb-6">
-                      <h3 className="text-2xl font-bold dark:text-white mb-2">
-                        {t.missionAccomplished.title} 🎉
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400">
-                        {t.missionAccomplished.message}
-                      </p>
-                    </div>
-
-                    {/* Password Reminder Section */}
-                    <div className="mb-6 p-4 bg-blue-50 dark:bg-yellow-900/20 
-                      border border-blue-100 dark:border-yellow-700
-                      rounded-lg text-center"
-                    >
-                      <div className="text-sm text-blue-700 dark:text-yellow-300 mb-2">
-                        {language === Language.AR 
-                          ? "🔑 لا تنسى كلمة السر! حافظ عليها في مكان آمن"
-                          : "🔑 Don't forget your password! Keep it somewhere safe"}
-                      </div>
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(password).then(() => {
-                            showSnackbar(language === Language.AR 
-                              ? "✨ تم نسخ كلمة السر!"
-                              : "✨ Password copied!");
-                          });
-                        }}
-                        className="font-mono text-base bg-blue-100 dark:bg-yellow-900/40 
-                          text-blue-800 dark:text-yellow-200 
-                          px-3 py-2 rounded-md inline-block
-                          hover:bg-blue-200 dark:hover:bg-yellow-900/60
-                          transition-all duration-200 cursor-pointer
-                          group"
-                      >
-                        <span className="flex items-center gap-2">
-                          {password}
-                          <span className="text-xs text-blue-500 dark:text-yellow-400 opacity-0 
-                            group-hover:opacity-100 transition-opacity duration-200">
-                            📋
-                          </span>
-                        </span>
-                      </button>
-                      <div className="text-xs text-blue-600 dark:text-yellow-400 mt-2">
-                        {language === Language.AR 
-                          ? "⚠️ لن نستطيع استعادة كلمة السر إذا نسيتها!"
-                          : "⚠️ We can't recover it if you lose it!"}
-                      </div>
-                    </div>
-
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-2 gap-4 mb-6">
-                      <div className="text-center p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl">
-                        <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t.stats.originalSize}</div>
-                        <div className="text-3xl sm:text-3xl text-2xl font-bold text-gray-900 dark:text-gray-100">
-                          {compressionStats && formatFileSize(compressionStats.originalSize, language)}
-                        </div>
-                        <div className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
-                          {compressionStats && t.fileSize[
-                            compressionStats.originalSize < 1024 ? 'tiny' :
-                            compressionStats.originalSize < 1024 * 1024 ? 'small' :
-                            compressionStats.originalSize < 10 * 1024 * 1024 ? 'medium' : 'big'
-                          ]}
-                        </div>
-                      </div>
-                      <div className="text-center p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl">
-                        <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t.stats.newSize}</div>
-                        <div className="text-3xl sm:text-3xl text-2xl font-bold text-blue-600 dark:text-blue-400">
-                          {compressionStats && formatFileSize(compressionStats.compressedSize, language)}
-                        </div>
-                        <div className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
-                          {compressionStats && (
-                            <span>
-                              {Math.round((1 - compressionStats.compressedSize / compressionStats.originalSize) * 100)}%{' '}
-                              {t.compression[
-                                compressionStats.compressedSize < compressionStats.originalSize / 2 
-                                  ? 'superShrink' 
-                                  : compressionStats.compressedSize < compressionStats.originalSize * 0.7
-                                  ? 'goodShrink'
-                                  : 'mildShrink'
-                              ]}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex flex-col gap-3">
-                      <button
-                        onClick={handleDownload}
-                        className="w-full py-2.5 bg-green-500/10 dark:bg-green-400/10
-                          text-green-600 dark:text-green-300 rounded-lg font-medium
-                          hover:bg-green-500/20 dark:hover:bg-green-400/20
-                          transition-all duration-200 flex items-center justify-center gap-2"
-                      >
-                        <span>{t.buttons.download}</span>
-                      </button>
-
-                      <a
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleEmailShare();
-                        }}
-                        className="w-full py-2.5 bg-blue-500/10 dark:bg-blue-400/10
-                          text-blue-600 dark:text-blue-300 rounded-lg font-medium
-                          hover:bg-blue-500/20 dark:hover:bg-blue-400/20
-                          transition-all duration-200 flex items-center justify-center gap-2
-                          cursor-pointer"
-                      >
-                        <span>{t.buttons.emailKey}</span>
-                      </a>
-                    </div>
-                  </div>
-
-                  {/* Compact Donation Section */}
-                  <div className="p-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
-                      {t.donation.support}
-                    </p>
-                    <a
-                      href="https://pay.ziina.com/khourykarim"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`
-                        inline-flex items-center justify-center
-                        px-4 py-2 rounded-lg
-                        bg-orange-100 hover:bg-orange-200 
-                        dark:bg-orange-500/20 dark:hover:bg-orange-500/30
-                        text-orange-600 dark:text-orange-300
-                        font-medium
-                        transform transition-all duration-200
-                        hover:scale-100 active:scale-100
-                        ${language === Language.AR ? 'text-right' : 'text-left'}
-                      `}
-                    >
-                      {currentMessage}
-                    </a>
-                  </div>
-                </div>
+                <CompletedView
+                  lang={language}
+                  originalSize={compressionStats?.originalSize || 0}
+                  compressedSize={compressionStats?.compressedSize || 0}
+                  processingTime={compressionStats?.processingTime || 0}
+                  onDownload={handleDownload}
+                  onReset={handleReset}
+                  onEmail={handleEmailShare}
+                  formatFileSize={(bytes) => formatFileSize(bytes, language)}
+                  downloadUrl={downloadUrl}
+                  password={password}
+                  showSnackbar={showSnackbar}
+                />
               )}
             </div>
 
@@ -889,6 +717,24 @@ ${downloadUrl}
                   <span>{githubStars}</span>
                 </a>
               </div>
+              <a
+                href="https://pay.ziina.com/khourykarim"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`
+                  inline-flex items-center justify-center
+                  px-4 py-2 rounded-lg
+                  bg-orange-100 hover:bg-orange-200 
+                  dark:bg-orange-500/20 dark:hover:bg-orange-500/30
+                  text-orange-600 dark:text-orange-300
+                  font-medium
+                  transform transition-all duration-200
+                  hover:scale-100 active:scale-100
+                  ${language === Language.AR ? 'text-right' : 'text-left'}
+                `}
+              >
+                {t.donation.messages[Math.floor(Math.random() * t.donation.messages.length)]}
+              </a>
             </div>
           </div>
         </footer>
