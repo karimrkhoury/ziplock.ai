@@ -193,9 +193,10 @@ function CompletedView({
               rounded-md
               group relative
               transition-all duration-200
-              hover:-translate-y-0.5"
+              hover:-translate-y-0.5
+              min-h-[3rem] sm:min-h-[3.5rem]"
           >
-            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300 
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300 
               group-hover:text-blue-600 dark:group-hover:text-blue-400
               transition-colors duration-200" 
               viewBox="0 0 24 24" 
