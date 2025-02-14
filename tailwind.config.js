@@ -25,6 +25,7 @@ export default {
         'fade-message': 'fadeMessage 3s ease-in-out infinite',
         'cross-fade': 'crossFade 1s ease-in-out',
         'fade-out': 'fadeOut 0.2s ease-out forwards',
+        ripple: 'ripple 0.6s ease-out'
       },
       keyframes: {
         wiggle: {
@@ -104,6 +105,10 @@ export default {
             transform: 'translateY(-4px)'
           }
         },
+        ripple: {
+          '0%': { transform: 'scale(0)', opacity: '0.5' },
+          '100%': { transform: 'scale(4)', opacity: '0' }
+        }
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

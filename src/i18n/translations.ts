@@ -41,7 +41,11 @@ export const translations = {
       download: "Download Files 📥",
       helpThinkPassword: "Help me think of one ✨",
       send: 'Send',
-      cancel: 'Cancel'
+      cancel: 'Cancel',
+      downloadToDevice: "Download to Device",
+      shareViaEmail: "Share via Email",
+      shareViaWhatsApp: "Share via WhatsApp",
+      copyFileLink: "Copy File Link"
     },
     missionAccomplished: {
       title: "Mission Accomplished!",
@@ -92,7 +96,8 @@ export const translations = {
     },
     success: {
       fileAdded: "Files added successfully! ✨",
-      copied: "Copied to clipboard! ✨"
+      copied: "Copied to clipboard! ✨",
+      linkCopied: "Link and password copied! ✨"
     },
     errors: {
       tooLarge: "File too large: ",
@@ -217,7 +222,11 @@ export const translations = {
       download: "تحميل الملفات 📥",
       helpThinkPassword: "ساعدني في التفكير ✨",
       send: 'إرسال',
-      cancel: 'إلغاء'
+      cancel: 'إلغاء',
+      downloadToDevice: "تحميل على الجهاز",
+      shareViaEmail: "مشاركة عبر البريد",
+      shareViaWhatsApp: "مشاركة عبر واتساب",
+      copyFileLink: "نسخ رابط الملف"
     },
     missionAccomplished: {
       title: "تمت المهمة بنجاح!",
@@ -314,7 +323,8 @@ export const translations = {
     },
     success: {
       fileAdded: "تمت إضافة الملفات بنجاح! ✨",
-      copied: "تم النسخ إلى الحافظة! ✨"
+      copied: "تم النسخ إلى الحافظة! ✨",
+      linkCopied: "!تم نسخ الرابط وكلمة المرور ✨"
     },
     errors: {
       tooLarge: "حجم الملف كبير جداً: ",
