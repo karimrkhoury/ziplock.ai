@@ -19,6 +19,15 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, files, lang, z
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Debug environment variables
+    console.log('Environment:', {
+      isDev: import.meta.env.DEV,
+      isProd: import.meta.env.PROD,
+      mode: import.meta.env.MODE,
+      apiUrl: import.meta.env.VITE_API_URL
+    });
+
     if (!zipBlob) {
       onError(t.email.noFile);
       return;
