@@ -195,34 +195,14 @@ const App = () => {
       setProgress(0);
       setError(null);
       
-      // Always start with a minimum 2-second simulation
-      const simulationPromise = new Promise<void>(resolve => {
-        const interval = simulateProgress(
-          (progress) => {
-            const displayProgress = Math.min(80, Math.floor(progress * 0.8));
-            setProgress(displayProgress);
-            if (progress % 20 < 1) {
-              setProgressMessage(getProgressMessage(progress, t));
-            }
-          },
-          2000
-        );
-
-        setTimeout(() => {
-          clearInterval(interval);
-          resolve();
-        }, 2000);
-      });
-
-      // Start the actual compression in parallel
+      // Compression phase (0-70%)
       const compressionPromise = (async () => {
         const blobWriter = new BlobWriter();
         const zipWriter = new ZipWriter(blobWriter, {
           password,
           bufferedWrite: true,
           keepOrder: true,
-          // Using DEFLATE with maximum compression
-          level: 9 // Maximum compression level
+          level: 9
         });
 
         let processedSize = 0;
@@ -234,14 +214,12 @@ const App = () => {
           const uniqueName = getUniqueFileName(usedNames, file.name);
           
           await zipWriter.add(uniqueName, fileReader, {
-            onprogress: async (current: number, total: number) => {
+            onprogress: (current: number, total: number) => {
               const fileProgress = (current / total) * file.size;
               const totalProgress = ((processedSize + fileProgress) / totalSize) * 100;
-              const displayProgress = Math.min(100, Math.max(80, Math.floor(80 + (totalProgress * 0.2))));
+              const displayProgress = Math.min(70, Math.floor(totalProgress * 0.7));
               setProgress(displayProgress);
-              if (Math.floor(totalProgress / 20) !== Math.floor((totalProgress - 1) / 20)) {
-                setProgressMessage(getProgressMessage(totalProgress, t));
-              }
+              setProgressMessage(t.compression.messages[Math.floor(displayProgress / 10)]);
             }
           });
           processedSize += file.size;
@@ -251,24 +229,47 @@ const App = () => {
         return await blobWriter.getData();
       })();
 
-      // Wait for both simulation and compression
-      const [content] = await Promise.all([compressionPromise, simulationPromise]);
+      // Wait for compression
+      const content = await compressionPromise;
+      setProgress(70);
+      setProgressMessage(t.compression.messages[7]); // "Digital Marie Kondo in progress..."
 
-      // Upload to get the URL first
+      // Upload phase (70-100%)
       const formData = new FormData();
       formData.append('file', new Blob([content]), 'ziplocked-files.zip');
+      
+      // Use XMLHttpRequest for upload progress
+      const uploadPromise = new Promise<{ downloadUrl: string }>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const uploadProgress = (event.loaded / event.total) * 30; // 30% of total progress
+            setProgress(70 + Math.floor(uploadProgress));
+            setProgressMessage(t.compression.messages[8]); // "Almost there! Final squish..."
+          }
+        };
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/upload`, {
-        method: 'POST',
-        body: formData,
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            resolve(JSON.parse(xhr.responseText));
+          } else {
+            reject(new Error(`Upload failed: ${xhr.statusText}`));
+          }
+        };
+
+        xhr.onerror = () => reject(new Error('Upload failed'));
+
+        xhr.open('POST', `${import.meta.env.VITE_API_URL}/upload`);
+        xhr.send(formData);
       });
 
-      const data = await response.json();
-      setDownloadUrl(data.downloadUrl); // Save the URL for email sharing
+      const { downloadUrl } = await uploadPromise;
+      setDownloadUrl(downloadUrl);
       
-      // Then update the UI
+      // Complete
       setProgress(100);
-      setProgressMessage(t.compression.messages[t.compression.messages.length - 1]);
+      setProgressMessage(t.compression.messages[9]); // "Polishing the results..."
       
       const endTime = performance.now();
       const processingTime = ((endTime - startTime) / 1000).toFixed(1);
