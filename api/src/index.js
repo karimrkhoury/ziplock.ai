@@ -47,17 +47,34 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Handle file uploads
+// Add at the top after imports
+console.log('API Starting with config:', {
+  port: process.env.PORT,
+  region: process.env.S3_REGION,
+  bucket: process.env.S3_BUCKET_NAME,
+  hasAccessKey: !!process.env.S3_ACCESS_KEY,
+  hasSecretKey: !!process.env.S3_SECRET_KEY
+});
+
+// Update the upload endpoint with better error handling
 app.post('/upload', upload.single('file'), async (req, res) => {
   if (!req.file) {
+    console.error('No file in request');
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
   try {
+    console.log('Uploading file:', {
+      name: req.file.originalname,
+      size: req.file.size,
+      type: req.file.mimetype
+    });
+
     const fileId = nanoid(10);
     const key = `uploads/${fileId}/${req.file.originalname}`;
 
     // Upload to S3
+    console.log('Uploading to S3:', { bucket: BUCKET_NAME, key });
     await s3Client.send(new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
@@ -65,20 +82,21 @@ app.post('/upload', upload.single('file'), async (req, res) => {
       ContentType: req.file.mimetype
     }));
 
-    // Generate temporary download URL (24 hours)
+    // Generate URL
     const command = new GetObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key
     });
     
     const downloadUrl = await getSignedUrl(s3Client, command, { 
-      expiresIn: 24 * 60 * 60 // 24 hours
+      expiresIn: 24 * 60 * 60
     });
 
+    console.log('Upload successful, returning URL:', downloadUrl);
     res.json({ downloadUrl });
   } catch (error) {
     console.error('Upload error:', error);
-    res.status(500).json({ error: 'Failed to upload file' });
+    res.status(500).json({ error: error.message });
   }
 });
 
