@@ -7,25 +7,25 @@ interface EmailModalProps {
   files: File[];
   lang: Language;
   zipBlob: Blob | null;
+  error: string | null;
+  onError: (error: string | null) => void;
 }
 
-const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, files, lang, zipBlob }) => {
+const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, files, lang, zipBlob, error, onError }) => {
   const [to, setTo] = useState('');
   const [subject, setSubject] = useState('Files shared via ZipLock');
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
   const t = translations[lang];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!zipBlob) {
-      console.error('No zipBlob available');
-      setUploadError(t.email.noFile);
+      onError(t.email.noFile);
       return;
     }
 
     setIsUploading(true);
-    setUploadError(null);
+    onError(null);
 
     try {
       const formData = new FormData();
@@ -33,14 +33,10 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, files, lang, z
 
       const apiUrl = `${import.meta.env.VITE_API_URL}/upload`;
       console.log('Uploading to:', apiUrl);
-      console.log('File size:', zipBlob.size);
       
       const response = await fetch(apiUrl, {
         method: 'POST',
         body: formData,
-        headers: {
-          'Accept': 'application/json',
-        },
       });
 
       if (!response.ok) {
@@ -66,7 +62,7 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, files, lang, z
       onClose();
     } catch (error) {
       console.error('Upload error:', error);
-      setUploadError(error instanceof Error ? error.message : t.email.uploadError);
+      onError(error instanceof Error ? error.message : t.email.uploadError);
     } finally {
       setIsUploading(false);
     }
@@ -112,9 +108,9 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onClose, files, lang, z
             />
           </div>
 
-          {uploadError && (
+          {error && (
             <div className="text-red-500 text-sm">
-              {uploadError}
+              {error}
             </div>
           )}
 
