@@ -3,6 +3,8 @@
 .env.local
 .env.development
 .env.production
+api/.env
+api/.env.development
 
 # Dependencies
 node_modules
