@@ -64,20 +64,20 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   }
 
   try {
-    // Generate shorter ID
-    const fileId = nanoid(6); // 6 chars instead of 10
-    const key = `uploads/${fileId}/${req.file.originalname}`;
+    const fileId = nanoid(6);
+    // Important: Use ziplocked-files.zip as the filename
+    const key = `uploads/${fileId}/ziplocked-files.zip`;
+    console.log('Uploading to S3:', { bucket: BUCKET_NAME, key });
 
-    // Upload to S3
     await s3Client.send(new PutObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key,
       Body: req.file.buffer,
-      ContentType: req.file.mimetype
+      ContentType: 'application/zip'
     }));
 
-    // Return a super short URL
     const downloadUrl = `https://ziplock.me/d/${fileId}`;
+    console.log('Generated download URL:', downloadUrl);
     res.json({ downloadUrl });
   } catch (error) {
     console.error('Upload error:', error);
