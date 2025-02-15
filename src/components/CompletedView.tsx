@@ -17,7 +17,7 @@ const getWhatsAppMessage = (downloadUrl: string, password: string, lang: Languag
   if (lang === Language.AR) {
     return `قمت بتجهيز ملفات مشفرة ومضغوطة باستخدام ziplock.me 🔒
 
-رابط التحميل:
+*رابط التحميل:*
 ${downloadUrl}
 
 *كلمة السر:*
@@ -44,25 +44,27 @@ const getEmailMessage = (downloadUrl: string, password: string, lang: Language) 
   if (lang === Language.AR) {
     return `قمت بتجهيز ملفات مشفرة ومضغوطة باستخدام ziplock.me 🔒
 
-رابط التحميل:
+*رابط التحميل:*
 ${downloadUrl}
 
-كلمة السر: ${password}
+*كلمة السر:*
+${password}
 
 ⏳ الرابط صالح لمدة ٢٤ ساعة فقط
 ───────────
-ضغط. تشفير. مشاركة ✨`;
+اِضْغَط · شَفِّر · أَرْسِل · تَمّ ✨`;
   }
   return `I've prepared encrypted & compressed files using ziplock.me 🔒
 
 Download link:
 ${downloadUrl}
 
-Password: ${password}
+*Password:*
+${password}
 
 ⏳ Link valid for 24 hours only
 ───────────
-zip. lock. ship ✨`;
+zip · lock · ship · done ✨`;
 };
 
 function CompletedView({ 
