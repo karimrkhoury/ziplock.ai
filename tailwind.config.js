@@ -24,7 +24,9 @@ export default {
         'fade-out': 'fadeOut 0.2s ease-out forwards',
         ripple: 'ripple 0.6s ease-out',
         'number-increment': 'number-increment 1s ease-out forwards',
-        'achievement-pop': 'achievement-pop 0.6s ease-out forwards'
+        'achievement-pop': 'achievement-pop 0.6s ease-out forwards',
+        'linear-fade': 'linearFade 0.2s ease-out forwards',
+        'linear-fade-delay': 'linearFade 0.2s ease-out 0.1s forwards',
       },
       keyframes: {
         wiggle: {
@@ -72,7 +74,17 @@ export default {
           '0%': { transform: 'scale(0.8)', opacity: '0' },
           '50%': { transform: 'scale(1.1)' },
           '100%': { transform: 'scale(1)', opacity: '1' }
-        }
+        },
+        linearFade: {
+          from: { 
+            opacity: '0',
+            transform: 'translateY(4px)'
+          },
+          to: { 
+            opacity: '1',
+            transform: 'translateY(0)'
+          }
+        },
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

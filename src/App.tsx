@@ -355,15 +355,23 @@ const App = () => {
 
   return (
     <ThemeProvider>
-      <div className="relative min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200 overflow-x-hidden">
+      <div className="relative min-h-screen bg-[#fafafa] dark:bg-[#0d1117] transition-colors duration-200 overflow-x-hidden">
+        {/* Gradient overlays for both light and dark modes */}
+        {/* Base gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white via-[#fafafa] to-white dark:from-[#0d1117] dark:via-[#131922] dark:to-[#0d1117] pointer-events-none" />
+        {/* Radial gradient overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,1),transparent_50%)] dark:bg-[radial-gradient(ellipse_at_top,rgba(51,78,104,0.15),transparent_50%)] pointer-events-none" />
+        {/* Subtle color tint */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-blue-50/50 via-transparent to-purple-50/50 dark:from-transparent dark:to-transparent pointer-events-none" />
+
         {/* Header with responsive design */}
         <div className="fixed top-0 right-0 w-full z-50 p-3">
           {/* Desktop/tablet view */}
           <div className="hidden md:flex items-center justify-end mr-4">
             <div className="flex items-center gap-2">
               <button className="w-8 h-7 flex items-center justify-center
-                bg-gray-50 dark:bg-gray-800
-                hover:bg-gray-100 dark:hover:bg-gray-700
+                bg-white/90 backdrop-blur-sm dark:bg-[#1a2230]
+                hover:bg-white dark:hover:bg-gray-700
                 rounded-lg shadow-lg
                 transition-all duration-200"
               >
@@ -373,8 +381,8 @@ const App = () => {
                 />
               </button>
               <button className="w-8 h-7 flex items-center justify-center
-                bg-gray-50 dark:bg-gray-800
-                hover:bg-gray-100 dark:hover:bg-gray-700
+                bg-white/90 backdrop-blur-sm dark:bg-[#1a2230]
+                hover:bg-white dark:hover:bg-gray-700
                 rounded-lg shadow-lg
                 transition-all duration-200"
               >
@@ -389,10 +397,10 @@ const App = () => {
               ref={hamburgerRef}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="w-8 h-7 rounded-md 
-                bg-gray-50 dark:bg-gray-800 
+                bg-white/90 backdrop-blur-sm dark:bg-[#1a2230] 
                 text-gray-700 dark:text-gray-200 
                 shadow-lg
-                hover:bg-gray-100 dark:hover:bg-gray-700/50
+                hover:bg-white dark:hover:bg-gray-700/50
                 transition-colors duration-200"
               aria-label="Menu"
             >
@@ -403,53 +411,52 @@ const App = () => {
 
         {/* Main content wrapper - consistent across all states */}
         <div className="pt-12 pb-32">
-          <div className="w-full max-w-[500px] mx-auto px-3 sm:px-4 py-4">
-            {/* Logo section */}
-            <div className="text-center mb-3 sm:mb-4">
-              <ZipLockLogo 
-                lang={language}
-                onReset={files.length > 0 || isCompleted ? handleReset : undefined}
-              />
+          {/* Logo section */}
+          <div className="w-full max-w-[440px] mx-auto px-4 sm:px-4 py-4">
+            <div className="text-center mb-8">
+              <div className="relative">
+                <ZipLockLogo 
+                  lang={language}
+                  onReset={files.length > 0 || isCompleted ? handleReset : undefined}
+                />
+              </div>
+              {!isCompleted && (
+                <div className="mt-6 space-y-4 relative z-10">
+                  <div className={`inline-flex items-center justify-center gap-3 sm:gap-4 text-lg sm:text-xl
+                    text-gray-600 dark:text-gray-300 font-medium
+                    ${language === Language.AR ? 'flex-row-reverse' : ''}`}
+                  >
+                    {language === Language.AR ? (
+                      <>
+                        <span>اِضْغَط 📦</span>
+                        <span className="text-gray-400 dark:text-gray-500">·</span>
+                        <span>شَفِّر 🔒</span>
+                        <span className="text-gray-400 dark:text-gray-500">·</span>
+                        <span>أَرْسِل 🚀</span>
+                        <span className="text-gray-400 dark:text-gray-500">·</span>
+                        <span>تَمّ ✨</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>zip 📦</span>
+                        <span className="text-gray-400 dark:text-gray-500">·</span>
+                        <span>lock 🔒</span>
+                        <span className="text-gray-400 dark:text-gray-500">·</span>
+                        <span>ship 🚀</span>
+                        <span className="text-gray-400 dark:text-gray-500">·</span>
+                        <span>done ✨</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Slogan - only show when not completed */}
-            {!isCompleted && (
-              <div className="text-center mb-4 sm:mb-6 font-medium tracking-wide">
-                <div className={`text-base inline-flex items-center justify-center text-gray-600 dark:text-gray-300
-                  ${language === Language.AR ? 'flex-row-reverse gap-4' : 'space-x-2'}`}
-                >
-                  {language === Language.AR ? (
-                    // Arabic flow (right to left, but same logical order)
-                    <>
-                      <span>{t.tagline.zip} 📦</span>
-                      <span className="text-gray-400 dark:text-gray-500">←</span>
-                      <span>{t.tagline.lock} 🔒</span>
-                      <span className="text-gray-400 dark:text-gray-500">←</span>
-                      <span>{t.tagline.share} 🚀</span>
-                      <span className="text-gray-400 dark:text-gray-500">←</span>
-                      <span>{t.tagline.done} ✨</span>
-                    </>
-                  ) : (
-                    // English flow (left to right)
-                    <>
-                      <span>{t.tagline.zip} 📦</span>
-                      <span className="text-gray-400 dark:text-gray-500">→</span>
-                      <span>{t.tagline.lock} 🔒</span>
-                      <span className="text-gray-400 dark:text-gray-500">→</span>
-                      <span>{t.tagline.share} 🚀</span>
-                      <span className="text-gray-400 dark:text-gray-500">→</span>
-                      <span>{t.tagline.done} ✨</span>
-                    </>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className={`w-full max-w-[500px] mx-auto transition-opacity duration-200 ease-in-out
+            <div className={`w-full transition-opacity duration-200 ease-in-out
               ${isResetting ? 'opacity-0' : 'opacity-100'}`}
             >
               {!isCompleted ? (
-                <div className={`space-y-4 sm:space-y-6 transition-opacity duration-300 ease-in-out
+                <div className={`space-y-4 sm:space-y-6 transition-all duration-300 ease-out
                   ${isCompleted ? 'opacity-0' : 'opacity-100'}`}
                 >
                   <div className="relative group">
@@ -468,9 +475,9 @@ const App = () => {
                     />
                   </div>
                   
-                  {/* File List with fade in */}
+                  {/* File List with Linear-style fade in */}
                   {files.length > 0 && (
-                    <div className="opacity-0 animate-fade-in space-y-1.5 sm:space-y-2">
+                    <div className="opacity-0 animate-linear-fade space-y-1.5 sm:space-y-2">
                       <div className="flex items-center justify-between mb-3">
                         <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
                           {files.length} {files.length === 1 ? t.fileList.filesReady : t.fileList.filesReady_plural}
@@ -545,15 +552,16 @@ const App = () => {
                   {files.length > 0 && (
                     <>
                       {/* Password Section when files are present */}
-                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-3 sm:mt-4 opacity-0 animate-fade-in-delay">
+                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-3 sm:mt-4 opacity-0 animate-linear-fade-delay">
                         <div className="relative flex-1">
                           <input
                             type={showPassword ? 'text' : 'password'}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder={t.secretPassword.funnyPlaceholder}
-                            className="w-full h-10 px-4 bg-gray-50 dark:bg-gray-800 
-                              border border-gray-200 dark:border-gray-700
+                            className="w-full h-10 px-4 
+                              bg-white/90 backdrop-blur-sm dark:bg-[#1a2230]
+                              border border-gray-200/50 dark:border-gray-700
                               rounded-lg text-gray-900 dark:text-gray-100
                               placeholder-gray-500 dark:placeholder-gray-400
                               focus:outline-none focus:ring-2 focus:ring-blue-500/50
@@ -603,7 +611,7 @@ const App = () => {
                       </div>
 
                       {/* Pack it up button */}
-                      <div className="mt-6 sm:mt-8 relative group opacity-0 animate-fade-in-delay">
+                      <div className="mt-6 sm:mt-8 relative group opacity-0 animate-linear-fade-delay">
                         {!isProcessing && (
                           <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 to-purple-500/20 
                             dark:from-blue-400/20 dark:to-purple-400/20 rounded-lg blur opacity-0 
@@ -758,7 +766,7 @@ const App = () => {
           ref={mobileMenuRef}
           className={`
             md:hidden fixed top-12 right-4 
-            bg-gray-50 dark:bg-gray-800 
+            bg-gray-50 dark:bg-[#1a2230] 
             rounded-lg shadow-lg
             p-1 flex flex-col w-8
             transition-all duration-200 transform origin-top-right
@@ -768,7 +776,7 @@ const App = () => {
         >
           <div className="flex flex-col gap-1">
             <div className="w-full py-2 flex items-center justify-center
-              bg-gray-50 dark:bg-gray-800
+              bg-gray-50 dark:bg-[#1a2230]
               hover:bg-gray-100 dark:hover:bg-gray-700
               rounded-md
               transition-all duration-200"
@@ -782,7 +790,7 @@ const App = () => {
               />
             </div>
             <div className="w-full py-2 flex items-center justify-center
-              bg-gray-50 dark:bg-gray-800
+              bg-gray-50 dark:bg-[#1a2230]
               hover:bg-gray-100 dark:hover:bg-gray-700
               rounded-md
               transition-all duration-200"
