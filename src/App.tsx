@@ -360,7 +360,7 @@ const App = () => {
         {/* Base gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-white via-[#fafafa] to-white dark:from-[#0d1117] dark:via-[#131922] dark:to-[#0d1117] pointer-events-none" />
         {/* Radial gradient overlay */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,1),transparent_50%)] dark:bg-[radial-gradient(ellipse_at_top,rgba(51,78,104,0.15),transparent_50%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,1),transparent_70%)] dark:bg-[radial-gradient(circle_at_top_right,rgba(51,78,104,0.15),transparent_70%)] pointer-events-none" />
         {/* Subtle color tint */}
         <div className="absolute inset-0 bg-gradient-to-tr from-blue-50/50 via-transparent to-purple-50/50 dark:from-transparent dark:to-transparent pointer-events-none" />
 
@@ -423,7 +423,8 @@ const App = () => {
               {!isCompleted && (
                 <div className="mt-6 space-y-4 relative z-10">
                   <div className={`inline-flex items-center justify-center gap-3 sm:gap-4 text-lg sm:text-xl
-                    text-gray-600 dark:text-gray-300 font-medium
+                    text-gray-600 dark:text-gray-300 font-medium tracking-wide
+                    ${language === Language.AR ? 'font-arabic' : 'font-sans'}
                     ${language === Language.AR ? 'flex-row-reverse' : ''}`}
                   >
                     {language === Language.AR ? (
@@ -552,8 +553,8 @@ const App = () => {
                   {files.length > 0 && (
                     <>
                       {/* Password Section when files are present */}
-                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-3 sm:mt-4 opacity-0 animate-linear-fade-delay">
-                        <div className="relative flex-1">
+                      <div className="flex flex-col gap-2 sm:gap-3 mt-3 sm:mt-4 opacity-0 animate-linear-fade-delay">
+                        <div className="relative">
                           <input
                             type={showPassword ? 'text' : 'password'}
                             value={password}
@@ -584,27 +585,19 @@ const App = () => {
                         <button
                           onClick={() => {
                             const randomPassword = generateSecurePassword();
-                            // Copy to clipboard
                             navigator.clipboard.writeText(randomPassword).then(() => {
                               setPassword(randomPassword);
                               setShowPassword(true);
-                              // Show random fun message with explicit clipboard mention
                               const message = t.magicPassword.messages[
                                 Math.floor(Math.random() * t.magicPassword.messages.length)
                               ];
                               showSnackbar(`${message} 📋`);
-                            }).catch(() => {
-                              // Fallback if clipboard fails
-                              setPassword(randomPassword);
-                              setShowPassword(true);
-                              showSnackbar(t.magicPassword.clipboardError);
                             });
                           }}
-                          className="h-10 px-4 bg-blue-500/10 dark:bg-blue-400/10
+                          className="h-9 px-4 bg-blue-500/10 dark:bg-blue-400/10
                             text-blue-600 dark:text-blue-300 rounded-lg text-sm
                             hover:bg-blue-500/20 dark:hover:bg-blue-400/20
                             transition-colors duration-200 whitespace-normal text-center"
-                          aria-label={t.buttons.helpThinkPassword}
                         >
                           {t.buttons.helpThinkPassword}
                         </button>

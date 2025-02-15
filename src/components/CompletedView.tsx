@@ -25,7 +25,7 @@ ${password}
 
 ⏳ الرابط صالح لمدة ٢٤ ساعة فقط
 ───────────
-ضغط. تشفير. مشاركة ✨`;
+اِضْغَط · شَفِّر · أَرْسِل · تَمّ ✨`;
   }
   return `I've prepared encrypted & compressed files using ziplock.me 🔒
 
@@ -37,7 +37,7 @@ ${password}
 
 ⏳ Link valid for 24 hours only
 ───────────
-zip. lock. ship ✨`;
+zip · lock · ship · done ✨`;
 };
 
 const getEmailMessage = (downloadUrl: string, password: string, lang: Language) => {

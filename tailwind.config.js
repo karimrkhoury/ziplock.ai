@@ -94,6 +94,25 @@ export default {
           850: '#1b1b1f', // Custom gray shade between 800 and 900
         }
       },
+      fontFamily: {
+        sans: [
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Helvetica Neue',
+          'Helvetica',
+          'Arial',
+          'sans-serif'
+        ],
+        arabic: [
+          'IBM Plex Sans Arabic',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Helvetica Neue',
+          'Helvetica',
+          'system-ui',
+          'sans-serif'
+        ],
+      },
     },
   },
   plugins: [],
