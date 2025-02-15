@@ -355,7 +355,7 @@ const App = () => {
 
   return (
     <ThemeProvider>
-      <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200 overflow-x-hidden">
+      <div className="relative min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200 overflow-x-hidden">
         {/* Header with responsive design */}
         <div className="fixed top-0 right-0 w-full z-50 p-3">
           {/* Desktop/tablet view */}
@@ -402,10 +402,10 @@ const App = () => {
         </div>
 
         {/* Main content wrapper - consistent across all states */}
-        <div className="flex-1 flex flex-col mt-14 sm:mt-16">
-          <div className="w-full max-w-2xl mx-auto px-3 sm:px-4 py-4">
+        <div className="pt-12 pb-32">
+          <div className="w-full max-w-[500px] mx-auto px-3 sm:px-4 py-4">
             {/* Logo section */}
-            <div className="text-center mb-6 sm:mb-8">
+            <div className="text-center mb-3 sm:mb-4">
               <ZipLockLogo 
                 lang={language}
                 onReset={files.length > 0 || isCompleted ? handleReset : undefined}
@@ -414,7 +414,7 @@ const App = () => {
 
             {/* Slogan - only show when not completed */}
             {!isCompleted && (
-              <div className="text-center mb-6 sm:mb-8 font-medium tracking-wide">
+              <div className="text-center mb-4 sm:mb-6 font-medium tracking-wide">
                 <div className={`text-base inline-flex items-center justify-center text-gray-600 dark:text-gray-300
                   ${language === Language.AR ? 'flex-row-reverse gap-4' : 'space-x-2'}`}
                 >
@@ -445,11 +445,13 @@ const App = () => {
               </div>
             )}
 
-            <div className={`transition-opacity duration-200 ease-in-out
+            <div className={`w-full max-w-[500px] mx-auto transition-opacity duration-200 ease-in-out
               ${isResetting ? 'opacity-0' : 'opacity-100'}`}
             >
               {!isCompleted ? (
-                <div className="space-y-4 sm:space-y-6">
+                <div className={`space-y-4 sm:space-y-6 transition-opacity duration-300 ease-in-out
+                  ${isCompleted ? 'opacity-0' : 'opacity-100'}`}
+                >
                   <div className="relative group">
                     {/* Glow effect for dropzone */}
                     <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 
@@ -468,7 +470,7 @@ const App = () => {
                   
                   {/* File List with fade in */}
                   {files.length > 0 && (
-                    <div className="animate-fade-slide-up space-y-1.5 sm:space-y-2">
+                    <div className="opacity-0 animate-fade-in space-y-1.5 sm:space-y-2">
                       <div className="flex items-center justify-between mb-3">
                         <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
                           {files.length} {files.length === 1 ? t.fileList.filesReady : t.fileList.filesReady_plural}
@@ -494,11 +496,11 @@ const App = () => {
                         {files.map((file, index) => (
                           <div 
                             key={`${file.name}-${index}`}
-                            className={`flex items-center justify-between py-2 px-3 
+                            className={`flex items-center justify-between py-2 px-3 animate-fade-in
                               bg-gray-50 dark:bg-gray-700/50 rounded-lg
                               group hover:bg-gray-100 dark:hover:bg-gray-700
-                              transition-all duration-200
-                              ${removingFileId === index ? 'animate-fade-out' : 'animate-slide-in'}`}
+                              transition-colors duration-200
+                              ${removingFileId === index ? 'animate-fade-out' : ''}`}
                           >
                             <div className="flex items-center space-x-3 rtl:space-x-reverse min-w-0">
                               <span className="text-xl flex-shrink-0" role="img" aria-label="file type">
@@ -543,7 +545,7 @@ const App = () => {
                   {files.length > 0 && (
                     <>
                       {/* Password Section when files are present */}
-                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-3 sm:mt-4">
+                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-3 sm:mt-4 opacity-0 animate-fade-in-delay">
                         <div className="relative flex-1">
                           <input
                             type={showPassword ? 'text' : 'password'}
@@ -600,8 +602,8 @@ const App = () => {
                         </button>
                       </div>
 
-                      {/* Pack it up button with reduced glow and more obvious hover */}
-                      <div className="mt-6 sm:mt-8 relative group">
+                      {/* Pack it up button */}
+                      <div className="mt-6 sm:mt-8 relative group opacity-0 animate-fade-in-delay">
                         {!isProcessing && (
                           <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 to-purple-500/20 
                             dark:from-blue-400/20 dark:to-purple-400/20 rounded-lg blur opacity-0 
@@ -675,17 +677,19 @@ const App = () => {
                   )}
                 </div>
               ) : (
-                <CompletedView
-                  lang={language}
-                  originalSize={compressionStats?.originalSize || 0}
-                  compressedSize={compressionStats?.compressedSize || 0}
-                  processingTime={compressionStats?.processingTime || 0}
-                  onDownload={handleDownload}
-                  formatFileSize={(bytes) => formatFileSize(bytes, language)}
-                  downloadUrl={downloadUrl}
-                  password={password}
-                  showSnackbar={showSnackbar}
-                />
+                <div className="animate-fade-in">
+                  <CompletedView
+                    lang={language}
+                    originalSize={compressionStats?.originalSize || 0}
+                    compressedSize={compressionStats?.compressedSize || 0}
+                    processingTime={compressionStats?.processingTime || 0}
+                    onDownload={handleDownload}
+                    formatFileSize={(bytes) => formatFileSize(bytes, language)}
+                    downloadUrl={downloadUrl}
+                    password={password}
+                    showSnackbar={showSnackbar}
+                  />
+                </div>
               )}
             </div>
 
@@ -698,7 +702,7 @@ const App = () => {
         </div>
 
         {/* Footer */}
-        <footer className="w-full py-2 px-3 sm:px-4">
+        <footer className="absolute bottom-0 left-0 right-0 py-2 px-3 sm:px-4">
           <div className="max-w-2xl mx-auto flex flex-col items-center">
             <div className="flex flex-col gap-1 text-center">
               <div className="text-center mt-8">

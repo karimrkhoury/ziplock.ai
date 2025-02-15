@@ -16,12 +16,9 @@ export default {
         'pulse-slow': 'pulse 3s linear infinite',
         'wiggle': 'wiggle 0.5s ease-in-out',
         'fade-in-out': 'fadeInOut 2s ease-in-out',
-        'slide-up': 'slideUp 0.3s ease-out forwards',
-        'slide-down': 'slideDown 0.4s ease-out forwards',
-        'slide-in': 'slide-in 0.2s ease-out forwards',
         'bounce-once': 'bounce 0.6s ease-in-out',
-        'fade-slide-up': 'fadeSlideUp 0.6s ease-out forwards',
-        'fade-in': 'fadeIn 0.4s ease-out forwards',
+        'fade-in': 'fadeIn 0.3s ease-out forwards',
+        'fade-in-delay': 'fadeIn 0.3s ease-out 0.2s forwards',
         'fade-message': 'fadeMessage 3s ease-in-out infinite',
         'cross-fade': 'crossFade 1s ease-in-out',
         'fade-out': 'fadeOut 0.2s ease-out forwards',
@@ -41,53 +38,9 @@ export default {
           '80%': { opacity: '1' },
           '100%': { opacity: '0' },
         },
-        slideUp: {
-          '0%': { 
-            transform: 'translate(-50%, 100%)',
-            opacity: '0'
-          },
-          '100%': { 
-            transform: 'translate(-50%, 0)',
-            opacity: '1'
-          },
-        },
-        slideDown: {
-          '0%': { 
-            opacity: '0',
-            transform: 'translateY(-16px)',
-          },
-          '100%': { 
-            opacity: '1',
-            transform: 'translateY(0)',
-          }
-        },
-        slideIn: {
-          '0%': {
-            opacity: '0',
-            transform: 'translateY(10px)'
-          },
-          '100%': {
-            opacity: '1',
-            transform: 'translateY(0)'
-          }
-        },
-        fadeSlideUp: {
-          '0%': { 
-            opacity: '0',
-            transform: 'translateY(20px)'
-          },
-          '100%': { 
-            opacity: '1',
-            transform: 'translateY(0)'
-          }
-        },
         fadeIn: {
-          '0%': { 
-            opacity: '0'
-          },
-          '100%': { 
-            opacity: '1'
-          }
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' }
         },
         fadeMessage: {
           '0%, 100%': { opacity: '1' },

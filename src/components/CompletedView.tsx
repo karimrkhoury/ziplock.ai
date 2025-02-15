@@ -89,10 +89,10 @@ function CompletedView({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-[800px] mx-auto px-3 sm:px-4">
+    <div className="flex flex-col items-center w-full max-w-[800px] mx-auto px-3 sm:px-4">
       <div className="w-full max-w-[500px] mx-auto space-y-3 sm:space-y-6">
         {/* Success Banner */}
-        <div className="flex items-center justify-between p-3 sm:p-4 bg-gradient-to-r 
+        <div className="flex items-center justify-between p-3 sm:p-4 mt-2 bg-gradient-to-r 
           from-green-500/10 to-emerald-500/10 dark:from-green-400/10 dark:to-emerald-400/10 
           rounded-lg w-full text-center"
         >
