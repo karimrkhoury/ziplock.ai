@@ -355,9 +355,9 @@ const App = () => {
 
   return (
     <ThemeProvider>
-      <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+      <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200 overflow-x-hidden">
         {/* Header with responsive design */}
-        <div className="fixed top-0 right-0 w-full z-50 p-4">
+        <div className="fixed top-0 right-0 w-full z-50 p-3">
           {/* Desktop/tablet view */}
           <div className="hidden md:flex items-center justify-end mr-4">
             <div className="flex items-center gap-2">
@@ -402,10 +402,10 @@ const App = () => {
         </div>
 
         {/* Main content wrapper - consistent across all states */}
-        <div className="flex-1 flex flex-col">
-          <div className="max-w-2xl mx-auto p-8 pb-4">
+        <div className="flex-1 flex flex-col mt-14 sm:mt-16">
+          <div className="w-full max-w-2xl mx-auto px-3 sm:px-4 py-4">
             {/* Logo section */}
-            <div className="text-center mb-8">
+            <div className="text-center mb-6 sm:mb-8">
               <ZipLockLogo 
                 lang={language}
                 onReset={files.length > 0 || isCompleted ? handleReset : undefined}
@@ -414,7 +414,7 @@ const App = () => {
 
             {/* Slogan - only show when not completed */}
             {!isCompleted && (
-              <div className="text-center mb-8 font-medium tracking-wide">
+              <div className="text-center mb-6 sm:mb-8 font-medium tracking-wide">
                 <div className={`text-base inline-flex items-center justify-center text-gray-600 dark:text-gray-300
                   ${language === Language.AR ? 'flex-row-reverse gap-4' : 'space-x-2'}`}
                 >
@@ -449,7 +449,7 @@ const App = () => {
               ${isResetting ? 'opacity-0' : 'opacity-100'}`}
             >
               {!isCompleted ? (
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div className="relative group">
                     {/* Glow effect for dropzone */}
                     <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 
@@ -468,7 +468,7 @@ const App = () => {
                   
                   {/* File List with fade in */}
                   {files.length > 0 && (
-                    <div className="animate-fade-slide-up space-y-2">
+                    <div className="animate-fade-slide-up space-y-1.5 sm:space-y-2">
                       <div className="flex items-center justify-between mb-3">
                         <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
                           {files.length} {files.length === 1 ? t.fileList.filesReady : t.fileList.filesReady_plural}
@@ -543,7 +543,7 @@ const App = () => {
                   {files.length > 0 && (
                     <>
                       {/* Password Section when files are present */}
-                      <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-3 sm:mt-4">
                         <div className="relative flex-1">
                           <input
                             type={showPassword ? 'text' : 'password'}
@@ -601,17 +601,17 @@ const App = () => {
                       </div>
 
                       {/* Pack it up button with reduced glow and more obvious hover */}
-                      <div className="mt-8 relative group">
+                      <div className="mt-6 sm:mt-8 relative group">
                         {!isProcessing && (
                           <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 to-purple-500/20 
                             dark:from-blue-400/20 dark:to-purple-400/20 rounded-lg blur opacity-0 
-                            group-hover:opacity-100 transition duration-300">
+                            group-hover:opacity-100 transition duration-300 z-0">
                           </div>
                         )}
 
                         {/* Progress bar overlay */}
                         <div className={`absolute inset-0 
-                          transition-opacity duration-300 ease-in
+                          transition-opacity duration-300 ease-in z-30
                           ${isProcessing ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                         >
                           <div className="space-y-2">
@@ -640,38 +640,36 @@ const App = () => {
                           </div>
                         </div>
 
-                        {/* Button with tooltip */}
-                        <div className="relative">
-                          <button
-                            onClick={handleCompress}
-                            disabled={isProcessing || !password || password.length < 8}
-                            className={`w-full py-3 px-4 
-                              text-lg font-medium rounded-lg
-                              border-2 relative z-10
-                              transform transition-all duration-300 ease-out
-                              hover:scale-[1.02] active:scale-[0.98]
-                              ${!password || password.length < 8 
-                                ? 'border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                                : 'border-transparent [background:linear-gradient(#ffffff,#ffffff)_padding-box,linear-gradient(to_right,#3b82f6,#a855f7)_border-box] dark:[background:linear-gradient(#1e293b,#1e293b)_padding-box,linear-gradient(to_right,#60a5fa,#c084fc)_border-box] text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400'
-                              }
-                              ${isProcessing ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
-                            aria-label={(!password || password.length < 8) ? t.validation.passwordTip : t.buttons.packItUp}
+                        {/* Tooltip - Only shows on hover when password is invalid */}
+                        {(!password || password.length < 8) && (
+                          <div className="absolute -top-14 left-1/2 -translate-x-1/2 
+                            px-4 py-2.5 text-xs font-medium w-max min-w-[240px] max-w-[280px] text-center leading-snug
+                            bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 
+                            rounded-lg opacity-0 group-hover:opacity-100 shadow-lg
+                            transition-all duration-200 pointer-events-none z-20"
                           >
-                            {t.buttons.packItUp} 🚀
-                          </button>
+                            {t.validation.passwordTip}
+                          </div>
+                        )}
 
-                          {/* Tooltip - Only shows on hover when password is invalid */}
-                          {(!password || password.length < 8) && (
-                            <div className="absolute -top-10 left-1/2 -translate-x-1/2 
-                              whitespace-nowrap px-2 py-1 text-xs font-medium
-                              bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 
-                              rounded-md opacity-0 group-hover:opacity-100
-                              transition-all duration-200 pointer-events-none"
-                            >
-                              {t.validation.passwordTip}
-                            </div>
-                          )}
-                        </div>
+                        {/* Button content */}
+                        <button
+                          onClick={handleCompress}
+                          disabled={isProcessing || !password || password.length < 8}
+                          className={`w-full py-3 px-4 
+                            text-lg font-medium rounded-lg
+                            border-2 relative z-10
+                            transform transition-all duration-300 ease-out
+                            hover:scale-[1.02] active:scale-[0.98]
+                            ${!password || password.length < 8 
+                              ? 'border-gray-300 dark:border-gray-600 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                              : 'border-transparent [background:linear-gradient(#ffffff,#ffffff)_padding-box,linear-gradient(to_right,#3b82f6,#a855f7)_border-box] dark:[background:linear-gradient(#1e293b,#1e293b)_padding-box,linear-gradient(to_right,#60a5fa,#c084fc)_border-box] text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400'
+                            }
+                            ${isProcessing ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+                          aria-label={(!password || password.length < 8) ? t.validation.passwordTip : t.buttons.packItUp}
+                        >
+                          {t.buttons.packItUp} 🚀
+                        </button>
                       </div>
                     </>
                   )}
@@ -700,7 +698,7 @@ const App = () => {
         </div>
 
         {/* Footer */}
-        <footer className="w-full py-2 px-4">
+        <footer className="w-full py-2 px-3 sm:px-4">
           <div className="max-w-2xl mx-auto flex flex-col items-center">
             <div className="flex flex-col gap-1 text-center">
               <div className="text-center mt-8">
