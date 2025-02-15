@@ -252,7 +252,7 @@ function CompletedView({
 
           {/* WhatsApp */}
           <a
-            href={`https://wa.me/?text=${encodeURIComponent(getWhatsAppMessage(downloadUrl, password, lang))}`}
+            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(getWhatsAppMessage(downloadUrl, password, lang))}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center
