@@ -191,6 +191,7 @@ export const translations = {
       ],
       clipboardError: "Magic worked but clipboard failed! Password is shown above ✨"
     },
+    description: "File sharing made fun! 🎯 Drop your files, get secure links - let us handle the encryption magic in between. No clunky tools, no boring interfaces, just modern secure sharing! ✨",
   },
   ar: {
     tagline: {
@@ -372,6 +373,7 @@ export const translations = {
       ],
       clipboardError: "نجح السحر لكن فشل النسخ! كلمة المرور معروضة أعلاه ✨"
     },
+    description: "مشاركة الملفات أصبحت ممتعة! 🎯 أرفع ملفاتك، واحصل على روابط آمنة - وخلي سحر التشفير علينا!✨ لا أدوات معقدة، لا واجهات مملة، مشاركة عصرية وآمنة و بس",
   }
 } as const;
 
