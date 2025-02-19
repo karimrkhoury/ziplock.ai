@@ -102,7 +102,20 @@ export const translations = {
     },
     errors: {
       tooLarge: "File too large: ",
-      generic: "Oops! Something went wrong with those files 😅"
+      generic: "Oops! Something went wrong with those files 😅",
+      expiredTitle: "Oops! This link has expired",
+      expired: [
+        "Looks like this file took a permanent vacation! 🏖️",
+        "This file has gone to the digital afterlife... 👻",
+        "404: Time machine not found! ⏰",
+        "The file fairy says this one's gone! 🧚‍♂️",
+        "This link is older than my coffee! ☕",
+        "File went poof! Like magic, but less fun 🎩",
+        "Even digital things need their beauty sleep 😴",
+        "This file has retired to a nice farm upstate 🌾",
+        "The internet hamsters ate this file 🐹",
+        "This link is more expired than my gym membership 🏋️‍♂️"
+      ]
     },
     processing: {
       compressing: "Compressing...",
@@ -328,10 +341,6 @@ export const translations = {
       linkCopied: "تم نسخ الرابط! ✨",
       passwordCopied: "تم نسخ كلمة المرور! ✨"
     },
-    errors: {
-      tooLarge: "حجم الملف كبير جداً: ",
-      generic: "عذراً! حدث خطأ مع هذه الملفات 😅"
-    },
     processing: {
       compressing: "جاري الضغط...",
       progress: "التقدم"
@@ -374,6 +383,23 @@ export const translations = {
       clipboardError: "نجح السحر لكن فشل النسخ! كلمة المرور معروضة أعلاه ✨"
     },
     description: "مشاركة الملفات أصبحت ممتعة! 🎯 أرفع ملفاتك، واحصل على روابط آمنة - وخلي سحر التشفير علينا!✨ لا أدوات معقدة، لا واجهات مملة، مشاركة عصرية وآمنة و بس",
+    errors: {
+      tooLarge: "حجم الملف كبير جداً: ",
+      generic: "عذراً! حدث خطأ مع هذه الملفات 😅",
+      expiredTitle: "عذراً! انتهت صلاحية هذا الرابط",
+      expired: [
+        "!يبدو أن هذا الملف ذهب في إجازة دائمة 🏖️",
+        "...هذا الملف انتقل إلى العالم الرقمي الآخر 👻",
+        "!٤٠٤: آلة الزمن غير موجودة ⏰",
+        "!جنية الملفات تقول إن هذا الملف اختفى 🧚‍♂️",
+        "!هذا الرابط أقدم من فنجان قهوتي ☕",
+        "!الملف تبخر! مثل السحر، لكن أقل متعة 🎩",
+        "حتى الملفات الرقمية تحتاج للنوم 😴",
+        "!هذا الملف تقاعد إلى مزرعة جميلة 🌾",
+        "!هامستر الإنترنت التهم هذا الملف 🐹",
+        "!هذا الرابط منتهي الصلاحية أكثر من اشتراكي بالنادي 🏋️‍♂️"
+      ]
+    },
   }
 } as const;
 

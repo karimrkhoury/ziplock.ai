@@ -157,6 +157,19 @@ const App = () => {
       setIsCompleted(true);
       setDownloadUrl(`https://ziplock.me/d/${fileId}`);
       
+      // Check if file exists by making a HEAD request
+      fetch(`${import.meta.env.VITE_API_URL}/files/${fileId}/exists`)
+        .then(res => {
+          if (!res.ok) {
+            setError('expired');
+            setIsCompleted(false);
+          }
+        })
+        .catch(() => {
+          setError('expired');
+          setIsCompleted(false);
+        });
+      
       // Try to get saved data from localStorage for this file
       const savedData = localStorage.getItem(`ziplock-${fileId}`);
       if (savedData) {
@@ -482,6 +495,12 @@ const App = () => {
     return data.sessionId === localStorage.getItem('ziplock-session-id');
   };
 
+  // Add expired link messages to translations
+  const getExpiredMessage = () => {
+    const messages = t.errors.expired;
+    return messages[Math.floor(Math.random() * messages.length)];
+  };
+
   return (
     <ThemeProvider>
       <div className="relative min-h-screen bg-[#fafafa] dark:bg-[#0d1117] transition-colors duration-200 overflow-x-hidden">
@@ -585,7 +604,45 @@ const App = () => {
             <div className={`w-full transition-opacity duration-200 ease-in-out
               ${isResetting ? 'opacity-0' : 'opacity-100'}`}
             >
-              {!isCompleted ? (
+              {error === 'expired' ? (
+                <div className={`flex flex-col items-center justify-center min-h-[60vh] px-4
+                  text-center ${language === Language.AR ? 'font-arabic' : 'font-sans'}
+                  ${language === Language.AR ? 'dir-rtl' : 'dir-ltr'}
+                `}>
+                  <div className="text-8xl sm:text-9xl mb-6 animate-bounce-slow">
+                    {language === Language.AR ? '😅' : '🫣'}
+                  </div>
+                  <h2 className={`text-2xl sm:text-3xl font-bold 
+                    text-gray-900 dark:text-gray-100 
+                    text-center mb-4
+                    ${language === Language.AR ? 'font-ge-ss' : ''}
+                  `}>
+                    {t.errors.expiredTitle}
+                  </h2>
+                  <p className={`text-gray-600 dark:text-gray-400 
+                    text-center max-w-md text-lg 
+                    animate-fade-message leading-relaxed
+                    ${language === Language.AR ? 'font-ge-ss' : ''}
+                  `}>
+                    {getExpiredMessage()}
+                  </p>
+                  <button
+                    onClick={() => navigate('/')}
+                    className={`mt-8 px-6 py-3 
+                      bg-gradient-to-r from-blue-500/10 to-purple-500/10
+                      dark:from-blue-400/10 dark:to-purple-400/10
+                      hover:from-blue-500/20 hover:to-purple-500/20
+                      dark:hover:from-blue-400/20 dark:hover:to-purple-400/20
+                      text-blue-600 dark:text-blue-300 
+                      rounded-lg transition-all duration-200
+                      transform hover:scale-105 active:scale-95
+                      ${language === Language.AR ? 'font-ge-ss' : ''}
+                    `}
+                  >
+                    {t.buttons.startFresh} ✨
+                  </button>
+                </div>
+              ) : !isCompleted ? (
                 <div className={`space-y-4 sm:space-y-6 transition-all duration-300 ease-out
                   ${isCompleted ? 'opacity-0' : 'opacity-100'}`}
                 >
