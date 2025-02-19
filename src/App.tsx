@@ -158,19 +158,8 @@ const App = () => {
     if (fileId) {
       setIsCompleted(true);
       setDownloadUrl(`https://ziplock.me/d/${fileId}`);
-      // Set minimal stats for UI
-      setCompressionStats({
-        originalSize: 0,
-        compressedSize: 0,
-        processingTime: 0
-      });
-    } else {
-      // Reset state when navigating back
-      if (isCompleted) {
-        handleReset();
-      }
     }
-  }, [fileId, isCompleted]);
+  }, [fileId]);
 
   const handleCompress = async () => {
     if (files.length === 0) return;
@@ -278,7 +267,8 @@ const App = () => {
       
       // Extract fileId from downloadUrl
       const fileId = downloadUrl.split('/').pop();
-      // Use regular navigation instead of replace
+      // Update URL and state
+      setIsCompleted(true);
       navigate(`/complete/${fileId}`);
       
       // Complete
@@ -296,7 +286,6 @@ const App = () => {
       
       setCompressionStats(stats);
       setZipBlob(content);
-      setIsCompleted(true);
 
     } catch (error) {
       console.error('Compression error:', error);
@@ -311,7 +300,6 @@ const App = () => {
   // Update the reset handler
   const handleReset = () => {
     setIsResetting(true);
-    // Use regular navigation instead of replace to maintain history
     navigate('/');
     setTimeout(() => {
       setFiles([]);
