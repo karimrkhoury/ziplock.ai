@@ -157,19 +157,6 @@ const App = () => {
       setIsCompleted(true);
       setDownloadUrl(`https://ziplock.me/d/${fileId}`);
       
-      // Check if file exists by making a HEAD request
-      fetch(`${import.meta.env.VITE_API_URL}/files/${fileId}/exists`)
-        .then(res => {
-          if (!res.ok) {
-            setError('expired');
-            setIsCompleted(false);
-          }
-        })
-        .catch(() => {
-          setError('expired');
-          setIsCompleted(false);
-        });
-      
       // Try to get saved data from localStorage for this file
       const savedData = localStorage.getItem(`ziplock-${fileId}`);
       if (savedData) {
@@ -384,8 +371,22 @@ const App = () => {
     setTimeout(() => setSnackbarMessage(null), 3500); // Changed from 5000 to 3500ms
   };
 
-  // Update the handleDownload function to handle missing blob
-  const handleDownload = () => {
+  // Update the handleDownload function to check for expired files
+  const handleDownload = async () => {
+    // Check if file exists before downloading
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/files/${fileId}/exists`);
+      if (!response.ok) {
+        setError('expired');
+        setIsCompleted(false);
+        return;
+      }
+    } catch {
+      setError('expired');
+      setIsCompleted(false);
+      return;
+    }
+
     if (zipBlob && isCreatorSession(fileId)) {
       const url = URL.createObjectURL(zipBlob);
       const a = document.createElement('a');
