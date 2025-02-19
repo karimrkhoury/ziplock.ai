@@ -91,29 +91,33 @@ app.get('/files/:fileId', async (req, res) => {
     const { fileId } = req.params;
     console.log('Fetching file:', fileId);
     
-    // Look for the zip file in the folder
     const key = `uploads/${fileId}/ziplocked-files.zip`;
-    console.log('S3 Key:', key);
+    
+    try {
+      // Check if file exists first
+      await s3Client.send(new GetObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: key
+      }));
+    } catch (error) {
+      if (error.name === 'NoSuchKey') {
+        // Redirect to frontend with expired state
+        return res.redirect(`${process.env.FRONTEND_URL}/complete/${fileId}?expired=true`);
+      }
+      throw error;
+    }
 
     const command = new GetObjectCommand({
       Bucket: BUCKET_NAME,
       Key: key
     });
     
-    const url = await getSignedUrl(s3Client, command, { 
-      expiresIn: 24 * 60 * 60 
-    });
-
-    console.log('Generated URL:', url);
-    
-    // Redirect to the signed URL
+    const url = await getSignedUrl(s3Client, command, { expiresIn: 24 * 60 * 60 });
     res.redirect(url);
   } catch (error) {
     console.error('Download error:', error);
-    res.status(500).json({ 
-      error: 'File not found',
-      details: error.message 
-    });
+    // Redirect to frontend with expired state for any other errors
+    res.redirect(`${process.env.FRONTEND_URL}/complete/${fileId}?expired=true`);
   }
 });
 
