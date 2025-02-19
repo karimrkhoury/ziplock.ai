@@ -8,14 +8,21 @@
   NPM_FLAGS = "--no-audit --no-fund"
   CI = "false"
 
-# First redirect for file downloads
+# First handle expired files redirect
+[[redirects]]
+  from = "/d/*/complete/*"
+  to = "/complete/:splat"
+  status = 302
+  force = true
+
+# Then handle file downloads
 [[redirects]]
   from = "/d/*"
   to = "https://ziplockai-production.up.railway.app/files/:splat"
   status = 301
   force = true
 
-# Then handle client-side routing
+# Finally handle client-side routing
 [[redirects]]
   from = "/*"
   to = "/index.html"

@@ -9,6 +9,16 @@
         document.documentElement.classList.add('dark')
         localStorage.theme = 'dark'
       }
+
+      // Handle 404s
+      window.addEventListener('error', function(e) {
+        if (e.target.tagName === 'IMG' || e.target.tagName === 'SCRIPT') return;
+        const errorBoundary = document.getElementById('error-boundary');
+        if (errorBoundary) {
+          document.querySelector('#root > div').style.display = 'none';
+          errorBoundary.style.display = 'flex';
+        }
+      }, true);
     </script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

@@ -101,8 +101,7 @@ app.get('/files/:fileId', async (req, res) => {
       }));
     } catch (error) {
       if (error.name === 'NoSuchKey') {
-        // Redirect to frontend with expired state
-        return res.redirect(`${process.env.FRONTEND_URL}/complete/${fileId}?expired=true`);
+        return res.status(404).end();
       }
       throw error;
     }
@@ -116,8 +115,7 @@ app.get('/files/:fileId', async (req, res) => {
     res.redirect(url);
   } catch (error) {
     console.error('Download error:', error);
-    // Redirect to frontend with expired state for any other errors
-    res.redirect(`${process.env.FRONTEND_URL}/complete/${fileId}?expired=true`);
+    res.status(404).end();
   }
 });
 
