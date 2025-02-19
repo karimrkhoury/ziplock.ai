@@ -8,18 +8,18 @@
   NPM_FLAGS = "--no-audit --no-fund"
   CI = "false"
 
+# First redirect for file downloads
 [[redirects]]
-  # Handle client-side routing
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = false
-
-  # Handle file downloads
   from = "/d/*"
   to = "https://ziplockai-production.up.railway.app/files/:splat"
   status = 301
   force = true
+
+# Then handle client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [[headers]]
   for = "/*"
@@ -33,7 +33,7 @@
 
 [[headers]]
   for = "/*.mjs"
-  [headers.values]
+    [headers.values]
     Content-Type = "text/javascript"
 
 [build.processing]
