@@ -9,15 +9,17 @@
   CI = "false"
 
 [[redirects]]
+  # Handle client-side routing
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+  # Handle file downloads
   from = "/d/*"
   to = "https://ziplockai-production.up.railway.app/files/:splat"
   status = 301
   force = true
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
 
 [[headers]]
   for = "/*"

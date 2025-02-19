@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom'
 import { BlobWriter, ZipWriter, BlobReader } from '@zip.js/zip.js'
 import DropZone from './components/DropZone'
 import { translations, Language } from './i18n/translations'
@@ -101,8 +102,21 @@ const mockUpload = async (_file: Blob): Promise<{ downloadUrl: string }> => {
   };
 };
 
+// Wrap the main App component
+const AppWrapper = () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/complete/:fileId" element={<App />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
+
 const App = () => {
-  // Remove unused states
+  const navigate = useNavigate();
+  const { fileId } = useParams();
   const [language, setLanguage] = useState<Language>(Language.EN);
   const [files, setFiles] = useState<File[]>([]);
   const [password, setPassword] = useState('');
@@ -136,6 +150,14 @@ const App = () => {
     setFiles(prevFiles => [...prevFiles, ...acceptedFiles]);
     setError(null);
   };
+
+  // Add effect to handle file ID from URL
+  useEffect(() => {
+    if (fileId) {
+      setIsCompleted(true);
+      setDownloadUrl(`https://ziplock.me/d/${fileId}`);
+    }
+  }, [fileId]);
 
   const handleCompress = async () => {
     if (files.length === 0) return;
@@ -241,6 +263,11 @@ const App = () => {
       const { downloadUrl } = await uploadPromise;
       setDownloadUrl(downloadUrl);
       
+      // Extract fileId from downloadUrl
+      const fileId = downloadUrl.split('/').pop();
+      // Update URL without reload
+      navigate(`/complete/${fileId}`, { replace: true });
+      
       // Complete
       setProgress(100);
       setProgressMessage(t.compression.messages[9]); // "Polishing the results..."
@@ -271,6 +298,7 @@ const App = () => {
   // Update the reset handler
   const handleReset = () => {
     setIsResetting(true);
+    navigate('/', { replace: true });
     setTimeout(() => {
       setFiles([]);
       setPassword('');
@@ -278,7 +306,7 @@ const App = () => {
       setZipBlob(null);
       setError(null);
       setCompressionStats(null);
-      setDownloadUrl(''); // Clear the download URL
+      setDownloadUrl('');
       setIsResetting(false);
     }, 200);
   };
@@ -797,4 +825,4 @@ const App = () => {
   )
 }
 
-export default App 
+export default AppWrapper 
