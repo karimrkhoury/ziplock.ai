@@ -105,14 +105,12 @@ const mockUpload = async (_file: Blob): Promise<{ downloadUrl: string }> => {
 // Wrap the main App component
 const AppWrapper = () => {
   return (
-    <ThemeProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<App />} />
-          <Route path="/complete/:fileId" element={<App />} />
-        </Routes>
-      </BrowserRouter>
-    </ThemeProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/complete/:fileId" element={<App />} />
+      </Routes>
+    </BrowserRouter>
   );
 };
 
@@ -164,6 +162,13 @@ const App = () => {
       if (savedData) {
         const data = JSON.parse(savedData);
         setCompressionStats(data.stats);
+        // Fetch the blob from the saved URL
+        if (data.blobUrl) {
+          fetch(data.blobUrl)
+            .then(res => res.blob())
+            .then(blob => setZipBlob(blob))
+            .catch(console.error);
+        }
         // Only show password if this is the creator's session
         if (data.sessionId === localStorage.getItem('ziplock-session-id')) {
           setPassword(data.password);
@@ -312,17 +317,20 @@ const App = () => {
         processingTime: parseFloat(processingTime)
       };
       
-      // Save data to localStorage with session ID
+      // Save data to localStorage with session ID and blob
+      const blobUrl = URL.createObjectURL(content);
       const dataToSave = {
         password,
         stats,
         sessionId: localStorage.getItem('ziplock-session-id'),
+        blobUrl,
         createdAt: Date.now()
       };
       localStorage.setItem(`ziplock-${fileId}`, JSON.stringify(dataToSave));
       
       // Update URL and state
       setIsCompleted(true);
+      setZipBlob(content);
       navigate(`/complete/${fileId}`);
       
       // Complete
@@ -330,7 +338,6 @@ const App = () => {
       setProgressMessage(t.compression.messages[9]); // "Polishing the results..."
       
       setCompressionStats(stats);
-      setZipBlob(content);
 
     } catch (error) {
       console.error('Compression error:', error);
@@ -435,6 +442,22 @@ const App = () => {
           if (savedTime && now - parseInt(savedTime) > 24 * 60 * 60 * 1000) {
             localStorage.removeItem(key);
             localStorage.removeItem(`${key}-time`);
+          }
+        }
+      });
+    };
+  }, []);
+
+  // Cleanup blob URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      // Clean up any blob URLs we created
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.startsWith('ziplock-')) {
+          const data = JSON.parse(localStorage.getItem(key) || '{}');
+          if (data.blobUrl) {
+            URL.revokeObjectURL(data.blobUrl);
           }
         }
       });
