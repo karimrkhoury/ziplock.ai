@@ -371,34 +371,38 @@ const App = () => {
     setTimeout(() => setSnackbarMessage(null), 3500); // Changed from 5000 to 3500ms
   };
 
-  // Update the handleDownload function to check for expired files
+  // Update the handleDownload function to handle downloads properly
   const handleDownload = async () => {
-    // Check if file exists before downloading
+    // Try to download, and only show expired if we get a 404
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/files/${fileId}/exists`);
-      if (!response.ok) {
+      if (zipBlob && isCreatorSession(fileId)) {
+        const url = URL.createObjectURL(zipBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'ziplocked-files.zip';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } else {
+        // For non-creators or when blob is not available, try the download URL
+        const response = await fetch(downloadUrl);
+        if (response.status === 404) {
+          setError('expired');
+          setIsCompleted(false);
+          return;
+        }
+        // If we get here, the file exists, so redirect to download
+        window.location.href = downloadUrl;
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('404')) {
         setError('expired');
         setIsCompleted(false);
-        return;
+      } else {
+        // Some other error occurred
+        console.error('Download error:', error);
       }
-    } catch {
-      setError('expired');
-      setIsCompleted(false);
-      return;
-    }
-
-    if (zipBlob && isCreatorSession(fileId)) {
-      const url = URL.createObjectURL(zipBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'ziplocked-files.zip';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } else {
-      // For non-creators or when blob is not available, redirect to download URL
-      window.location.href = downloadUrl;
     }
   };
 
