@@ -162,16 +162,20 @@ const App = () => {
       if (savedData) {
         const data = JSON.parse(savedData);
         setCompressionStats(data.stats);
-        // Fetch the blob from the saved URL
-        if (data.blobUrl) {
-          fetch(data.blobUrl)
-            .then(res => res.blob())
-            .then(blob => setZipBlob(blob))
-            .catch(console.error);
-        }
         // Only show password if this is the creator's session
         if (data.sessionId === localStorage.getItem('ziplock-session-id')) {
           setPassword(data.password);
+          // Only try to restore blob for creator's session
+          if (data.blobUrl) {
+            try {
+              fetch(data.blobUrl)
+                .then(res => res.blob())
+                .then(blob => setZipBlob(blob))
+                .catch(() => setZipBlob(null));
+            } catch {
+              setZipBlob(null);
+            }
+          }
         }
       } else {
         setCompressionStats({
@@ -367,15 +371,20 @@ const App = () => {
     setTimeout(() => setSnackbarMessage(null), 3500); // Changed from 5000 to 3500ms
   };
 
-  // Keep the download functionality simple with just local blob download
+  // Update the handleDownload function to handle missing blob
   const handleDownload = () => {
-    if (zipBlob) {
+    if (zipBlob && isCreatorSession(fileId)) {
       const url = URL.createObjectURL(zipBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'ziplocked-files.zip';
-      link.click();
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'ziplocked-files.zip';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    } else {
+      // For non-creators or when blob is not available, redirect to download URL
+      window.location.href = downloadUrl;
     }
   };
 
