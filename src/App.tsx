@@ -153,13 +153,46 @@ const App = () => {
     setError(null);
   };
 
-  // Update the effect to handle file ID and state restoration
+  // Update the effect to handle navigation and state
   useEffect(() => {
     if (fileId) {
       setIsCompleted(true);
       setDownloadUrl(`https://ziplock.me/d/${fileId}`);
+      
+      // Try to get saved data from localStorage for this file
+      const savedData = localStorage.getItem(`ziplock-${fileId}`);
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        setCompressionStats(data.stats);
+        // Only show password if this is the creator's session
+        if (data.sessionId === localStorage.getItem('ziplock-session-id')) {
+          setPassword(data.password);
+        }
+      } else {
+        setCompressionStats({
+          originalSize: 0,
+          compressedSize: 0,
+          processingTime: 0
+        });
+      }
+    } else {
+      // Reset state when navigating back to home
+      setFiles([]);
+      setPassword('');
+      setIsCompleted(false);
+      setZipBlob(null);
+      setError(null);
+      setCompressionStats(null);
+      setDownloadUrl('');
     }
   }, [fileId]);
+
+  // Generate a session ID when the app loads
+  useEffect(() => {
+    if (!localStorage.getItem('ziplock-session-id')) {
+      localStorage.setItem('ziplock-session-id', crypto.randomUUID());
+    }
+  }, []);
 
   const handleCompress = async () => {
     if (files.length === 0) return;
@@ -267,6 +300,27 @@ const App = () => {
       
       // Extract fileId from downloadUrl
       const fileId = downloadUrl.split('/').pop();
+      
+      // Calculate processing time
+      const endTime = performance.now();
+      const processingTime = ((endTime - startTime) / 1000).toFixed(1);
+      
+      // Create stats object
+      const stats: CompressionStats = {
+        originalSize: files.reduce((acc, file) => acc + file.size, 0),
+        compressedSize: content.size,
+        processingTime: parseFloat(processingTime)
+      };
+      
+      // Save data to localStorage with session ID
+      const dataToSave = {
+        password,
+        stats,
+        sessionId: localStorage.getItem('ziplock-session-id'),
+        createdAt: Date.now()
+      };
+      localStorage.setItem(`ziplock-${fileId}`, JSON.stringify(dataToSave));
+      
       // Update URL and state
       setIsCompleted(true);
       navigate(`/complete/${fileId}`);
@@ -274,15 +328,6 @@ const App = () => {
       // Complete
       setProgress(100);
       setProgressMessage(t.compression.messages[9]); // "Polishing the results..."
-      
-      const endTime = performance.now();
-      const processingTime = ((endTime - startTime) / 1000).toFixed(1);
-
-      const stats: CompressionStats = {
-        originalSize: files.reduce((acc, file) => acc + file.size, 0),
-        compressedSize: content.size,
-        processingTime: parseFloat(processingTime)
-      };
       
       setCompressionStats(stats);
       setZipBlob(content);
@@ -300,15 +345,11 @@ const App = () => {
   // Update the reset handler
   const handleReset = () => {
     setIsResetting(true);
-    navigate('/');
+    if (fileId) {
+      localStorage.removeItem(`ziplock-${fileId}`);
+    }
+    window.history.back(); // Use browser's back instead of navigate
     setTimeout(() => {
-      setFiles([]);
-      setPassword('');
-      setIsCompleted(false);
-      setZipBlob(null);
-      setError(null);
-      setCompressionStats(null);
-      setDownloadUrl('');
       setIsResetting(false);
     }, 200);
   };
@@ -382,6 +423,32 @@ const App = () => {
 
     fetchGithubStars();
   }, []); // Fetch once when component mounts
+
+  // Add cleanup on unmount
+  useEffect(() => {
+    return () => {
+      // Clean up old data (older than 24h)
+      const now = Date.now();
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('ziplock-')) {
+          const savedTime = localStorage.getItem(`${key}-time`);
+          if (savedTime && now - parseInt(savedTime) > 24 * 60 * 60 * 1000) {
+            localStorage.removeItem(key);
+            localStorage.removeItem(`${key}-time`);
+          }
+        }
+      });
+    };
+  }, []);
+
+  // Add this helper to check if it's the creator's session
+  const isCreatorSession = (fileId: string | undefined) => {
+    if (!fileId) return false;
+    const savedData = localStorage.getItem(`ziplock-${fileId}`);
+    if (!savedData) return false;
+    const data = JSON.parse(savedData);
+    return data.sessionId === localStorage.getItem('ziplock-session-id');
+  };
 
   return (
     <ThemeProvider>
@@ -718,6 +785,7 @@ const App = () => {
                     formatFileSize={(bytes) => formatFileSize(bytes, language)}
                     downloadUrl={downloadUrl}
                     password={password}
+                    isCreator={isCreatorSession(fileId)}
                     showSnackbar={showSnackbar}
                   />
                 </div>

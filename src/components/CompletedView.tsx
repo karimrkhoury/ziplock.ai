@@ -10,6 +10,7 @@ interface CompletedViewProps {
   formatFileSize: (bytes: number) => string
   downloadUrl: string
   password: string
+  isCreator: boolean
   showSnackbar: (message: string) => void
 }
 
@@ -76,6 +77,7 @@ function CompletedView({
   formatFileSize,
   downloadUrl,
   password,
+  isCreator,
   showSnackbar
 }: CompletedViewProps) {
   const t = translations[lang]
@@ -157,32 +159,34 @@ function CompletedView({
           </div>
         </div>
 
-        {/* Password Reminder Card */}
-        <div className="p-3 sm:p-4 bg-gray-50/50 dark:bg-gray-800/30 rounded-lg border
-          border-gray-200/50 dark:border-gray-700/30 w-full"
-        >
-          <div className="text-center space-y-2">
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(password)
-                  .then(() => showSnackbar(t.success.passwordCopied));
-              }}
-              className="px-3 py-1.5 sm:py-2 dir-ltr
-                bg-gray-100/50 dark:bg-gray-800/50
-                text-gray-800 dark:text-gray-200
-                rounded font-mono text-xs sm:text-sm
-                break-all w-full
-                cursor-pointer"
-            >
-              {password}
-            </button>
-            <div className={`text-xs text-gray-600 dark:text-gray-400
-             ${lang === Language.AR ? 'dir-rtl' : 'dir-ltr'}`}
-            >
-              {t.missionAccomplished.passwordReminder.warning}
+        {/* Password Reminder Card - Only show if creator */}
+        {isCreator && (
+          <div className="p-3 sm:p-4 bg-gray-50/50 dark:bg-gray-800/30 rounded-lg border
+            border-gray-200/50 dark:border-gray-700/30 w-full"
+          >
+            <div className="text-center space-y-2">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(password)
+                    .then(() => showSnackbar(t.success.passwordCopied));
+                }}
+                className="px-3 py-1.5 sm:py-2 dir-ltr
+                  bg-gray-100/50 dark:bg-gray-800/50
+                  text-gray-800 dark:text-gray-200
+                  rounded font-mono text-xs sm:text-sm
+                  break-all w-full
+                  cursor-pointer"
+              >
+                {password}
+              </button>
+              <div className={`text-xs text-gray-600 dark:text-gray-400
+               ${lang === Language.AR ? 'dir-rtl' : 'dir-ltr'}`}
+              >
+                {t.missionAccomplished.passwordReminder.warning}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Action Icons */}
         <div className="flex justify-between items-center w-full max-w-[280px] sm:max-w-[320px] mx-auto">
