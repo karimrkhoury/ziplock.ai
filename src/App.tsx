@@ -105,12 +105,14 @@ const mockUpload = async (_file: Blob): Promise<{ downloadUrl: string }> => {
 // Wrap the main App component
 const AppWrapper = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/complete/:fileId" element={<App />} />
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<App />} />
+          <Route path="/complete/:fileId" element={<App />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 };
 
@@ -151,13 +153,24 @@ const App = () => {
     setError(null);
   };
 
-  // Add effect to handle file ID from URL
+  // Update the effect to handle file ID and state restoration
   useEffect(() => {
     if (fileId) {
       setIsCompleted(true);
       setDownloadUrl(`https://ziplock.me/d/${fileId}`);
+      // Set minimal stats for UI
+      setCompressionStats({
+        originalSize: 0,
+        compressedSize: 0,
+        processingTime: 0
+      });
+    } else {
+      // Reset state when navigating back
+      if (isCompleted) {
+        handleReset();
+      }
     }
-  }, [fileId]);
+  }, [fileId, isCompleted]);
 
   const handleCompress = async () => {
     if (files.length === 0) return;
@@ -265,8 +278,8 @@ const App = () => {
       
       // Extract fileId from downloadUrl
       const fileId = downloadUrl.split('/').pop();
-      // Update URL without reload
-      navigate(`/complete/${fileId}`, { replace: true });
+      // Use regular navigation instead of replace
+      navigate(`/complete/${fileId}`);
       
       // Complete
       setProgress(100);
@@ -298,7 +311,8 @@ const App = () => {
   // Update the reset handler
   const handleReset = () => {
     setIsResetting(true);
-    navigate('/', { replace: true });
+    // Use regular navigation instead of replace to maintain history
+    navigate('/');
     setTimeout(() => {
       setFiles([]);
       setPassword('');
