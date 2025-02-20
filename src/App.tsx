@@ -510,7 +510,7 @@ const App = () => {
   return (
     <ThemeProvider>
       <ErrorBoundary language={language}>
-        <div className="relative min-h-screen bg-[#fafafa] dark:bg-[#0d1117] transition-colors duration-200 overflow-x-hidden">
+        <div className="fixed inset-0 min-h-screen bg-[#fafafa] dark:bg-[#0d1117] transition-colors duration-200">
           {/* Gradient overlays for both light and dark modes */}
           {/* Base gradient */}
           <div className="absolute inset-0 bg-gradient-to-b from-white via-[#fafafa] to-white dark:from-[#0d1117] dark:via-[#131922] dark:to-[#0d1117] pointer-events-none" />
@@ -518,9 +518,11 @@ const App = () => {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,1),transparent_70%)] dark:bg-[radial-gradient(circle_at_top_right,rgba(51,78,104,0.15),transparent_70%)] pointer-events-none" />
           {/* Subtle color tint */}
           <div className="absolute inset-0 bg-gradient-to-tr from-blue-50/50 via-transparent to-purple-50/50 dark:from-transparent dark:to-transparent pointer-events-none" />
+        </div>
 
+        <div className="relative min-h-screen overflow-x-hidden z-10">
           {/* Header with responsive design */}
-          <div className="fixed top-0 right-0 w-full z-50 p-3">
+          <div className="fixed top-0 right-0 w-full z-[60] p-3">
             {/* Desktop/tablet view */}
             <div className="hidden md:flex items-center justify-end mr-4">
               <div className="flex items-center gap-2">
