@@ -1,3 +1,4 @@
+import React from 'react';
 import { Language } from '../i18n/translations';
 
 interface LanguageSwitcherProps {
@@ -5,22 +6,31 @@ interface LanguageSwitcherProps {
   onLanguageChange: (lang: Language) => void;
 }
 
-export function LanguageSwitcher({ currentLang, onLanguageChange }: LanguageSwitcherProps) {
-  const handleClick = () => {
-    onLanguageChange(currentLang === Language.EN ? Language.AR : Language.EN);
+const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ currentLang, onLanguageChange }) => {
+  const handleLanguageChange = () => {
+    const newLang = currentLang === Language.EN ? Language.AR : Language.EN;
+    onLanguageChange(newLang);
+    
+    // Save language preference to localStorage
+    try {
+      localStorage.setItem('ziplock-language', newLang);
+    } catch (error) {
+      console.error('Failed to save language preference:', error);
+    }
   };
 
   return (
-    <div
-      onClick={handleClick}
-      className="w-full h-full flex items-center justify-center
-        text-gray-700 dark:text-gray-200
-        transition-all duration-200
-        cursor-pointer"
+    <div 
+      onClick={handleLanguageChange}
+      className="flex items-center justify-center cursor-pointer"
     >
-      {currentLang === 'en' ? 'ع' : 'en'}
+      {currentLang === Language.EN ? (
+        <span className="text-sm font-medium text-gray-600 dark:text-white hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200">ع</span>
+      ) : (
+        <span className="text-sm font-medium text-gray-600 dark:text-white hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-200">en</span>
+      )}
     </div>
   );
-}
+};
 
 export default LanguageSwitcher; 

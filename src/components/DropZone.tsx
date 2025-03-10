@@ -1,95 +1,130 @@
-import { useDropzone } from 'react-dropzone'
-import type { FileRejection } from 'react-dropzone'
-import { useState, useCallback } from 'react'
-import { Language, translations } from '../i18n/translations'
+import React, { useCallback, useState, useEffect } from 'react';
+import { useDropzone } from 'react-dropzone';
+import type { FileRejection } from 'react-dropzone';
+import { Language, translations } from '../i18n/translations';
 
 interface DropZoneProps {
   onDrop: (acceptedFiles: File[]) => void;
   error?: string | null;
-  readonly maxSize?: number
-  readonly className?: string
-  readonly lang: Language
+  readonly maxSize?: number;
+  readonly className?: string;
+  readonly lang: Language;
 }
 
-function DropZone({ onDrop, maxSize = 100 * 1024 * 1024, className = '', lang }: DropZoneProps) {
-  const [isLoading, setIsLoading] = useState(false)
-  const [sizeError, setSizeError] = useState<string | null>(null)
+const DropZone: React.FC<DropZoneProps> = ({ 
+  onDrop, 
+  maxSize = 100 * 1024 * 1024, // 100MB default
+  lang = Language.EN,
+  className = ''
+}) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [sizeError, setSizeError] = useState<string | null>(null);
 
   const t = translations[lang];
 
-  const handleDrop = useCallback(async (
-    acceptedFiles: File[], 
-    rejectedFiles: FileRejection[]
-  ) => {
-    // Check for oversized files first
-    const oversizedFiles = rejectedFiles.filter(
-      rejection => rejection.errors[0]?.code === 'file-too-large'
-    );
+  // Optimize file handling with useCallback to prevent unnecessary re-renders
+  const handleDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length === 0) return;
     
-    if (oversizedFiles.length > 0) {
-      const fileNames = oversizedFiles.map(f => f.file.name).join(', ');
-      const message = lang === 'ar' 
-        ? `${t.errors.tooLarge}${fileNames}`
-        : `${t.errors.tooLarge}${fileNames}`;
-      setSizeError(message);
-      setTimeout(() => setSizeError(null), 3000);
-      return;
-    }
+    setIsProcessing(true);
+    
+    // Use a small timeout to allow the UI to update before processing large files
+    // This prevents the UI from freezing during file processing
+    setTimeout(() => {
+      try {
+        onDrop(acceptedFiles);
+      } finally {
+        setIsProcessing(false);
+      }
+    }, 50);
+  }, [onDrop]);
 
-    setIsLoading(true);
-    try {
-      // Process files with minimal delay for UI feedback
-      await new Promise(resolve => setTimeout(resolve, 300));
-      onDrop(acceptedFiles);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [onDrop, lang, t]);
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { 
+    getRootProps, 
+    getInputProps, 
+    isDragActive,
+    isDragAccept,
+    isDragReject,
+    open
+  } = useDropzone({ 
     onDrop: handleDrop,
-    multiple: true,
     maxSize,
     noClick: false,
-    preventDropOnDocument: true,
-    useFsAccessApi: false,
-  })
+    noKeyboard: false,
+    multiple: true,
+    useFsAccessApi: false, // Disable File System Access API for better compatibility
+  });
+
+  // Update dragging state with debounce to prevent flickering
+  useEffect(() => {
+    if (isDragActive) {
+      setIsDragging(true);
+    } else {
+      const timer = setTimeout(() => setIsDragging(false), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isDragActive]);
+
+  // Get appropriate message based on language and drag state
+  const getMessage = () => {
+    if (isProcessing) {
+      return lang === Language.AR ? 'جاري معالجة الملفات...' : 'Processing files...';
+    }
+    
+    if (isDragActive) {
+      if (isDragReject) {
+        return lang === Language.AR ? 'عفواً، هذا النوع من الملفات غير مدعوم' : 'Sorry, this file type is not supported';
+      }
+      return lang === Language.AR ? 'أفلت الملفات هنا' : 'Drop files here';
+    }
+    
+    return lang === Language.AR 
+      ? 'اسحب وأفلت الملفات هنا، أو انقر للاختيار' 
+      : 'Drag and drop files here, or click to select';
+  };
 
   return (
     <div className="relative">
       <div 
         {...getRootProps()} 
-        className={`p-8 border-2 border-transparent
-          rounded-lg cursor-pointer
-          [background:linear-gradient(#ffffff,#ffffff)_padding-box,linear-gradient(to_right,#3b82f6,#a855f7)_border-box]
-          dark:[background:linear-gradient(#1e293b,#1e293b)_padding-box,linear-gradient(to_right,#60a5fa,#c084fc)_border-box]
-          hover:text-blue-600 dark:hover:text-blue-400
-          transition-all duration-300 ease-out
-          ${isDragActive ? 'scale-[1.02]' : ''}
-          ${className}`}
+        className={`
+          flex flex-col items-center justify-center
+          p-6 sm:p-8
+          border-2 border-dashed rounded-lg
+          transition-all duration-200 ease-in-out
+          cursor-pointer
+          ${isDragging ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-700 bg-white/80 dark:bg-gray-800/50'}
+          ${isDragReject ? 'border-red-400 bg-red-50 dark:bg-red-900/20' : ''}
+          ${isDragAccept ? 'border-green-400 bg-green-50 dark:bg-green-900/20' : ''}
+          ${isProcessing ? 'opacity-70 pointer-events-none' : 'opacity-100'}
+          ${className}
+        `}
       >
         <input {...getInputProps()} />
-        <div className={`text-center ${lang === 'ar' ? 'rtl' : 'ltr'}`}>
-          {isDragActive ? (
-            <p className="text-blue-500 dark:text-blue-400">{t.dropzone}</p>
-          ) : sizeError ? (
-            <p className="text-red-500 dark:text-red-400 animate-fade-in">
-              {sizeError}
-            </p>
-          ) : (
-            <p className="text-gray-500 dark:text-gray-400 flex items-center justify-center gap-2">
-              <span>{t.dropzone}</span>
-              <span className={`w-4 h-4 transition-opacity duration-200 ${isLoading ? 'opacity-100' : 'opacity-0'}`}>
-                <span className="block w-4 h-4 border-2 border-blue-200 dark:border-blue-900 
-                  border-t-blue-500 dark:border-t-blue-400 rounded-full animate-spin"
-                />
-              </span>
-            </p>
-          )}
+        
+        <div className="text-5xl mb-4">
+          {isProcessing ? '⏳' : isDragActive ? '📂' : '📁'}
         </div>
+        
+        <p className={`text-center text-sm sm:text-base
+          ${isDragReject ? 'text-red-500 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'}
+          ${lang === Language.AR ? 'font-arabic' : 'font-sans'}
+        `}>
+          {getMessage()}
+        </p>
+        
+        <p className={`mt-2 text-xs text-gray-500 dark:text-gray-500
+          ${lang === Language.AR ? 'font-arabic' : 'font-sans'}
+        `}>
+          {lang === Language.AR 
+            ? `الحد الأقصى لحجم الملف: ${Math.round(maxSize / (1024 * 1024))} ميجابايت`
+            : `Maximum file size: ${Math.round(maxSize / (1024 * 1024))} MB`
+          }
+        </p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default DropZone 
+export default DropZone; 

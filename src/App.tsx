@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { BlobWriter, ZipWriter, BlobReader } from '@zip.js/zip.js'
 import DropZone from './components/DropZone'
 import { translations, Language } from './i18n/translations'
@@ -9,7 +9,7 @@ import { ThemeProvider } from './context/ThemeContext'
 import { ThemeToggle } from './components/ThemeToggle'
 import CompletedView from './components/CompletedView'
 import { RichText } from './components/RichText'
-import { ErrorBoundary } from './components/ErrorBoundary'
+import ErrorBoundary from './components/ErrorBoundary'
 
 
 // Update formatFileSize function to be more precise with bytes
@@ -105,19 +105,29 @@ const mockUpload = async (_file: Blob): Promise<{ downloadUrl: string }> => {
 
 // Wrap the main App component
 const AppWrapper = () => {
+  // Use a state to track language at the app wrapper level
+  const [language, setLanguage] = useState<Language>(Language.EN);
+  
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<App />} />
-        <Route path="/complete/:fileId" element={<App />} />
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      <ErrorBoundary language={language}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<App onLanguageChange={setLanguage} />} />
+            <Route path="/complete/:fileId" element={<App onLanguageChange={setLanguage} />} />
+          </Routes>
+        </BrowserRouter>
+      </ErrorBoundary>
+    </ThemeProvider>
   );
 };
 
-const App = () => {
+// Update the App component to accept and use the language change callback
+const App = ({ onLanguageChange }: { onLanguageChange?: (lang: Language) => void }) => {
   const navigate = useNavigate();
   const { fileId } = useParams();
+  const [searchParams] = useSearchParams();
+  const isExpired = searchParams.get('expired') === 'true';
   const [language, setLanguage] = useState<Language>(Language.EN);
   const [files, setFiles] = useState<File[]>([]);
   const [password, setPassword] = useState('');
@@ -140,6 +150,25 @@ const App = () => {
 
   const MAX_TOTAL_SIZE = 500 * 1024 * 1024; // 500MB
 
+  // Update the parent component when language changes
+  useEffect(() => {
+    if (onLanguageChange) {
+      onLanguageChange(language);
+    }
+  }, [language, onLanguageChange]);
+
+  // Load language preference from localStorage
+  useEffect(() => {
+    try {
+      const savedLanguage = localStorage.getItem('ziplock-language');
+      if (savedLanguage && (savedLanguage === Language.EN || savedLanguage === Language.AR)) {
+        setLanguage(savedLanguage as Language);
+      }
+    } catch (error) {
+      console.error('Failed to load language preference:', error);
+    }
+  }, []);
+
   const handleFileDrop = (acceptedFiles: File[]) => {
     const totalSize = acceptedFiles.reduce((acc, file) => acc + file.size, 0);
     
@@ -155,52 +184,109 @@ const App = () => {
   // Update the effect to handle navigation and state
   useEffect(() => {
     if (fileId) {
+      if (isExpired) {
+        setError('expired');
+        setIsCompleted(false);
+        return;
+      }
+      
       setIsCompleted(true);
-      setDownloadUrl(`https://ziplock.me/d/${fileId}`);
+      setDownloadUrl(`${import.meta.env.VITE_DOWNLOAD_URL}/${fileId}`);
       
       // Try to get saved data from localStorage for this file
-      const savedData = localStorage.getItem(`ziplock-${fileId}`);
-      if (savedData) {
-        const data = JSON.parse(savedData);
-        setCompressionStats(data.stats);
-        // Only show password if this is the creator's session
-        if (data.sessionId === localStorage.getItem('ziplock-session-id')) {
-          setPassword(data.password);
-          // Only try to restore blob for creator's session
-          if (data.blobUrl) {
-            try {
-              fetch(data.blobUrl)
-                .then(res => res.blob())
-                .then(blob => setZipBlob(blob))
-                .catch(() => setZipBlob(null));
-            } catch {
-              setZipBlob(null);
+      try {
+        const savedData = localStorage.getItem(`ziplock-${fileId}`);
+        if (savedData) {
+          try {
+            const data = JSON.parse(savedData);
+            
+            // Set password if available
+            if (data.password) {
+              setPassword(data.password);
             }
+            
+            // Set stats if available
+            if (data.stats) {
+              setCompressionStats(data.stats);
+            }
+            
+            // Only try to restore blob for creator's session
+            if (data.blobUrl) {
+              try {
+                // Attempt to fetch the blob from the URL
+                fetch(data.blobUrl)
+                  .then(response => {
+                    if (!response.ok) throw new Error('Blob not available');
+                    return response.blob();
+                  })
+                  .then(blob => {
+                    setZipBlob(blob);
+                  })
+                  .catch(error => {
+                    console.error('Failed to restore blob:', error);
+                    // Clear invalid blob URL
+                    const updatedData = { ...data };
+                    delete updatedData.blobUrl;
+                    localStorage.setItem(`ziplock-${fileId}`, JSON.stringify(updatedData));
+                  });
+              } catch (error) {
+                console.error('Error processing blob URL:', error);
+              }
+            }
+          } catch (parseError) {
+            console.error('Error parsing saved data:', parseError);
+            // Remove corrupted data
+            localStorage.removeItem(`ziplock-${fileId}`);
           }
+        } else {
+          // No saved data found
+          setCompressionStats({
+            originalSize: 0,
+            compressedSize: 0,
+            processingTime: 0
+          });
         }
-      } else {
-        setCompressionStats({
-          originalSize: 0,
-          compressedSize: 0,
-          processingTime: 0
-        });
+      } catch (error) {
+        console.error('Error accessing localStorage:', error);
       }
     } else {
-      // Reset state when navigating back to home
-      setFiles([]);
-      setPassword('');
       setIsCompleted(false);
-      setZipBlob(null);
-      setError(null);
-      setCompressionStats(null);
+      setPassword('');
       setDownloadUrl('');
     }
-  }, [fileId]);
+  }, [fileId, isExpired]);
 
   // Generate a session ID when the app loads
   useEffect(() => {
     if (!localStorage.getItem('ziplock-session-id')) {
       localStorage.setItem('ziplock-session-id', crypto.randomUUID());
+    }
+  }, []);
+
+  // Clear corrupted localStorage data on app start
+  useEffect(() => {
+    try {
+      // Find and remove any corrupted entries
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('ziplock-')) {
+          try {
+            // Test if we can parse the data
+            JSON.parse(localStorage.getItem(key) || '{}');
+          } catch (e) {
+            // If parsing fails, remove the corrupted entry
+            console.log('Removing corrupted localStorage entry:', key);
+            localStorage.removeItem(key);
+          }
+        }
+      });
+    } catch (e) {
+      // If something goes wrong, clear all ziplock data
+      console.error('Error cleaning localStorage, clearing all ziplock data');
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('ziplock-')) {
+          localStorage.removeItem(key);
+        }
+      });
     }
   }, []);
 
@@ -357,10 +443,32 @@ const App = () => {
   // Update the reset handler
   const handleReset = () => {
     setIsResetting(true);
+    
+    // Clear file-specific localStorage data
     if (fileId) {
       localStorage.removeItem(`ziplock-${fileId}`);
     }
-    window.history.back(); // Use browser's back instead of navigate
+    
+    // Reset all state to initial values
+    setFiles([]);
+    setPassword('');
+    setIsCompleted(false);
+    setZipBlob(null);
+    setError(null);
+    setCompressionStats({
+      originalSize: 0,
+      compressedSize: 0,
+      processingTime: 0
+    });
+    setProgress(0);
+    setProgressMessage('');
+    setIsProcessing(false);
+    setDownloadUrl('');
+    
+    // Navigate back to home
+    navigate('/');
+    
+    // Delay the reset animation
     setTimeout(() => {
       setIsResetting(false);
     }, 200);
@@ -374,7 +482,6 @@ const App = () => {
 
   // Update the handleDownload function to handle downloads properly
   const handleDownload = async () => {
-    // Try to download, and only show expired if we get a 404
     try {
       if (zipBlob && isCreatorSession(fileId)) {
         const url = URL.createObjectURL(zipBlob);
@@ -386,24 +493,13 @@ const App = () => {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
       } else {
-        // For non-creators or when blob is not available, try the download URL
-        const response = await fetch(downloadUrl);
-        if (response.status === 404) {
-          setError('expired');
-          setIsCompleted(false);
-          return;
-        }
-        // If we get here, the file exists, so redirect to download
+        // For non-creators or when blob is not available, redirect to download URL
         window.location.href = downloadUrl;
       }
     } catch (error) {
-      if (error instanceof Error && error.message.includes('404')) {
-        setError('expired');
-        setIsCompleted(false);
-      } else {
-        // Some other error occurred
-        console.error('Download error:', error);
-      }
+      console.error('Download error:', error);
+      setError('expired');
+      setIsCompleted(false);
     }
   };
 
@@ -534,7 +630,10 @@ const App = () => {
                 >
                   <LanguageSwitcher 
                     currentLang={language}
-                    onLanguageChange={setLanguage}
+                    onLanguageChange={(lang) => {
+                      setLanguage(lang);
+                      setIsMobileMenuOpen(false);
+                    }}
                   />
                 </button>
                 <button className="w-8 h-7 flex items-center justify-center
@@ -876,16 +975,20 @@ const App = () => {
                 ) : (
                   <div className="animate-fade-in">
                     <CompletedView
-                      lang={language}
+                      fileId={fileId}
+                      password={password}
+                      error={error}
                       originalSize={compressionStats?.originalSize || 0}
                       compressedSize={compressionStats?.compressedSize || 0}
                       processingTime={compressionStats?.processingTime || 0}
                       onDownload={handleDownload}
+                      onReset={handleReset}
                       formatFileSize={(bytes) => formatFileSize(bytes, language)}
                       downloadUrl={downloadUrl}
-                      password={password}
-                      isCreator={isCreatorSession(fileId)}
-                      showSnackbar={showSnackbar}
+                      t={{
+                        ...translations[language],
+                        showSnackbar: showSnackbar
+                      }}
                     />
                   </div>
                 )}

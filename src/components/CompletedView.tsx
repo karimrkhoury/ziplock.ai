@@ -1,96 +1,168 @@
-import { Language, translations } from '../i18n/translations'
-import { RichText } from './RichText'
+import React from 'react';
+import { Language } from '../i18n/translations';
+import { RichText } from './RichText';
 
 interface CompletedViewProps {
-  lang: Language
-  originalSize: number
-  compressedSize: number
-  processingTime: number
-  onDownload: () => void
-  formatFileSize: (bytes: number) => string
-  downloadUrl: string
-  password: string
-  isCreator: boolean
-  showSnackbar: (message: string) => void
+  fileId?: string;
+  password: string;
+  error: string | null;
+  originalSize: number;
+  compressedSize: number;
+  processingTime: number;
+  onDownload: () => void;
+  onReset: () => void;
+  formatFileSize: (bytes: number) => string;
+  downloadUrl: string;
+  t: any; // Using any for translations for simplicity
 }
 
+// Helper functions for messages
 const getWhatsAppMessage = (downloadUrl: string, password: string, lang: Language) => {
   if (lang === Language.AR) {
-    return `قمت بتجهيز ملفات مشفرة ومضغوطة باستخدام ziplock.me 🔒
-
-*رابط التحميل:*
-${downloadUrl}
-
-*كلمة السر:*
-${password}
-
-⏳ الرابط صالح لمدة ٢٤ ساعة فقط
-───────────
-اِضْغَط · شَفِّر · أَرْسِل · تَمّ ✨`;
+    return `ملفات مشفرة 🔒\nالرابط: ${downloadUrl}\nكلمة المرور: ${password}`;
   }
-  return `I've prepared encrypted & compressed files using ziplock.me 🔒
-
-Download link:
-${downloadUrl}
-
-*Password:*
-${password}
-
-⏳ Link valid for 24 hours only
-───────────
-zip · lock · ship · done ✨`;
+  return `Encrypted files 🔒\nLink: ${downloadUrl}\nPassword: ${password}`;
 };
 
 const getEmailMessage = (downloadUrl: string, password: string, lang: Language) => {
   if (lang === Language.AR) {
-    return `قمت بتجهيز ملفات مشفرة ومضغوطة باستخدام ziplock.me 🔒
-
-*رابط التحميل:*
-${downloadUrl}
-
-*كلمة السر:*
-${password}
-
-⏳ الرابط صالح لمدة ٢٤ ساعة فقط
-───────────
-اِضْغَط · شَفِّر · أَرْسِل · تَمّ ✨`;
+    return `مرحباً،\n\nإليك الملفات المشفرة:\n${downloadUrl}\n\nكلمة المرور: ${password}\n\nتم إنشاؤها باستخدام ziplock.me 🔒`;
   }
-  return `I've prepared encrypted & compressed files using ziplock.me 🔒
-
-Download link:
-${downloadUrl}
-
-*Password:*
-${password}
-
-⏳ Link valid for 24 hours only
-───────────
-zip · lock · ship · done ✨`;
+  return `Hello,\n\nHere are your encrypted files:\n${downloadUrl}\n\nPassword: ${password}\n\nCreated with ziplock.me 🔒`;
 };
 
-function CompletedView({ 
-  lang, 
-  originalSize, 
-  compressedSize, 
+const CompletedView: React.FC<CompletedViewProps> = ({
+  password,
+  error,
+  originalSize,
+  compressedSize,
   processingTime,
   onDownload,
+  onReset,
   formatFileSize,
   downloadUrl,
-  password,
-  isCreator,
-  showSnackbar
-}: CompletedViewProps) {
-  const t = translations[lang]
-  const savedSize = originalSize - compressedSize
-  const savedPercentage = Math.round((savedSize / originalSize) * 100)
-
-  const getSpeedAchievement = (processingTime: number, fileSize: number): string => {
-    const speed = fileSize / processingTime / 1024 / 1024; // MB/s
-    if (speed > 50) return '⚡ Lightning Fast!';
-    if (speed > 30) return '🚀 Speed Demon!';
-    if (speed > 20) return '💨 Quick Draw!';
-    return '🏃 Steady Pace!';
+  t = {} // Provide default empty object
+}: CompletedViewProps) => {
+  // Default translations in case t is undefined or missing properties
+  const defaultT = {
+    missionAccomplished: {
+      title: 'Mission Accomplished!',
+      passwordReminder: {
+        warning: 'Save this password - it cannot be recovered if lost'
+      }
+    },
+    stats: {
+      saved: 'Space Saved',
+      processingTime: 'Processing Time'
+    },
+    buttons: {
+      downloadToDevice: 'Download to Device',
+      shareViaEmail: 'Share via Email',
+      shareViaWhatsApp: 'Share via WhatsApp',
+      copyFileLink: 'Copy File Link',
+      startFresh: 'Start Fresh ✨'
+    },
+    success: {
+      passwordCopied: 'Password copied to clipboard!',
+      linkCopied: 'Link copied to clipboard!'
+    },
+    donation: {
+      supportMessage: 'Help keep ziplock free & secure for everyone! 🚀',
+      messages: ['Buy me a late night coding snack 🌙']
+    },
+    errors: {
+      expired: {
+        title: 'Oops! This link has expired',
+        message: 'The file is no longer available. Please upload a new file.'
+      }
+    },
+    compression: {
+      messages: ['Polishing the results...']
+    },
+    validation: {
+      encryptionFailed: 'Encryption failed. Please try again.'
+    }
   };
+
+  // Merge provided translations with defaults
+  const translations = {
+    missionAccomplished: { ...defaultT.missionAccomplished, ...(t.missionAccomplished || {}) },
+    stats: { ...defaultT.stats, ...(t.stats || {}) },
+    buttons: { ...defaultT.buttons, ...(t.buttons || {}) },
+    success: { ...defaultT.success, ...(t.success || {}) },
+    donation: { ...defaultT.donation, ...(t.donation || {}) },
+    errors: { ...defaultT.errors, ...(t.errors || {}) },
+    compression: { ...defaultT.compression, ...(t.compression || {}) },
+    validation: { ...defaultT.validation, ...(t.validation || {}) }
+  };
+  
+  const savedSize = originalSize - compressedSize;
+  const savedPercentage = Math.round((savedSize / originalSize) * 100) || 0;
+  
+  const getSpeedAchievement = (processingTime: number, fileSize: number): string => {
+    // Check if we're using Arabic by looking at the translations
+    // We can detect this by checking if the mission accomplished title contains Arabic characters
+    const isArabic = translations.missionAccomplished.title.match(/[\u0600-\u06FF]/) !== null;
+    
+    if (processingTime < 1) {
+      return isArabic ? '🚀 سرعة خارقة!' : '🚀 Supersonic!';
+    }
+    if (processingTime < 2) {
+      return isArabic ? '⚡ سريع كالبرق!' : '⚡ Lightning Fast!';
+    }
+    if (processingTime < 3) {
+      return isArabic ? '🏎️ سريع جداً!' : '🏎️ Speedy!';
+    }
+    if (fileSize > 50 * 1024 * 1024 && processingTime < 5) {
+      return isArabic ? '🔥 مثير للإعجاب!' : '🔥 Impressive!';
+    }
+    return isArabic ? '🏃 بوتيرة ثابتة!' : '🏃 Steady Pace!';
+  };
+
+  // Handle copy to clipboard
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href)
+      .then(() => {
+        // Show snackbar if available
+        if (typeof t.showSnackbar === 'function') {
+          t.showSnackbar(translations.success.linkCopied);
+        }
+      });
+  };
+  
+  // Handle copy password
+  const handleCopyPassword = () => {
+    navigator.clipboard.writeText(password)
+      .then(() => {
+        // Show snackbar if available
+        if (typeof t.showSnackbar === 'function') {
+          t.showSnackbar(translations.success.passwordCopied);
+        }
+      });
+  };
+
+  if (error === 'expired') {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+        <div className="text-8xl sm:text-9xl mb-6 animate-bounce-slow">🫣</div>
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 text-center mb-4">
+          {translations.errors.expired.title}
+        </h2>
+        <p className="text-gray-600 dark:text-gray-400 text-center mb-8">
+          {translations.errors.expired.message}
+        </p>
+        <button
+          onClick={onReset}
+          className="mt-4 px-6 py-3 bg-blue-500/10 dark:bg-blue-400/10
+            text-blue-600 dark:text-blue-300 rounded-lg
+            hover:bg-blue-500/20 dark:hover:bg-blue-400/20
+            transition-all duration-200"
+        >
+          {translations.buttons.startFresh}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center w-full max-w-[800px] mx-auto px-3 sm:px-4">
@@ -113,7 +185,7 @@ function CompletedView({
             </div>
             <div>
               <div className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100">
-                {t.missionAccomplished.title}
+                {translations.missionAccomplished.title}
               </div>
             </div>
           </div>
@@ -126,7 +198,7 @@ function CompletedView({
           >
             <div className="text-center">
               <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-1">
-                {t.stats.saved}
+                {translations.stats.saved}
               </div>
               <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 
                 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent
@@ -139,18 +211,18 @@ function CompletedView({
               </div>
             </div>
           </div>
-
+          
           <div className="p-3 sm:p-4 bg-gradient-to-br from-green-50 to-emerald-50
             dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl"
           >
             <div className="text-center">
               <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-1">
-                {t.stats.processingTime}
+                {translations.stats.processingTime}
               </div>
               <div className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600
                 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent"
               >
-                {processingTime}s
+                {processingTime.toFixed(1)}s
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {getSpeedAchievement(processingTime, originalSize)}
@@ -158,36 +230,29 @@ function CompletedView({
             </div>
           </div>
         </div>
-
-        {/* Password Reminder Card - Only show if creator */}
-        {isCreator && (
-          <div className="p-3 sm:p-4 bg-gray-50/50 dark:bg-gray-800/30 rounded-lg border
-            border-gray-200/50 dark:border-gray-700/30 w-full"
-          >
-            <div className="text-center space-y-2">
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(password)
-                    .then(() => showSnackbar(t.success.passwordCopied));
-                }}
-                className="px-3 py-1.5 sm:py-2 dir-ltr
-                  bg-gray-100/50 dark:bg-gray-800/50
-                  text-gray-800 dark:text-gray-200
-                  rounded font-mono text-xs sm:text-sm
-                  break-all w-full
-                  cursor-pointer"
-              >
-                {password}
-              </button>
-              <div className={`text-xs text-gray-600 dark:text-gray-400
-               ${lang === Language.AR ? 'dir-rtl' : 'dir-ltr'}`}
-              >
-                {t.missionAccomplished.passwordReminder.warning}
-              </div>
+        
+        {/* Password Reminder Card */}
+        <div className="p-3 sm:p-4 bg-gray-50/50 dark:bg-gray-800/30 rounded-lg border
+          border-gray-200/50 dark:border-gray-700/30 w-full"
+        >
+          <div className="text-center space-y-2">
+            <button 
+              onClick={handleCopyPassword}
+              className="px-3 py-1.5 sm:py-2 dir-ltr
+                bg-gray-100/50 dark:bg-gray-800/50
+                text-gray-800 dark:text-gray-200
+                rounded font-mono text-xs sm:text-sm
+                break-all w-full
+                cursor-pointer"
+            >
+              {password}
+            </button>
+            <div className="text-xs text-gray-600 dark:text-gray-400">
+              {translations.missionAccomplished.passwordReminder.warning}
             </div>
           </div>
-        )}
-
+        </div>
+        
         {/* Action Icons */}
         <div className="flex justify-between items-center w-full max-w-[280px] sm:max-w-[320px] mx-auto">
           {/* Download */}
@@ -216,18 +281,16 @@ function CompletedView({
               rounded-lg opacity-0 group-hover:opacity-100 shadow-lg
               transition-all duration-200 pointer-events-none z-20"
             >
-              {t.buttons.downloadToDevice}
+              {translations.buttons.downloadToDevice}
             </span>
           </button>
-
+          
           {/* Email */}
-          <button
+          <button 
             onClick={() => {
-              const subject = lang === Language.AR 
-                ? 'ملفات مشفرة باستخدام ziplock.me 🔒'
-                : 'Files encrypted with ziplock.me 🔒';
-              const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(getEmailMessage(downloadUrl, password, lang))}`;
-              window.location.href = mailtoUrl;
+              const subject = encodeURIComponent("Files encrypted with ziplock.me 🔒");
+              const body = encodeURIComponent(getEmailMessage(downloadUrl, password, Language.EN));
+              window.open(`mailto:?subject=${subject}&body=${body}`);
             }}
             className="flex items-center justify-center
               group relative
@@ -252,15 +315,16 @@ function CompletedView({
               rounded-lg opacity-0 group-hover:opacity-100 shadow-lg
               transition-all duration-200 pointer-events-none z-20"
             >
-              {t.buttons.shareViaEmail}
+              {translations.buttons.shareViaEmail}
             </span>
           </button>
-
+          
           {/* WhatsApp */}
-          <a
-            href={`https://api.whatsapp.com/send?text=${encodeURIComponent(getWhatsAppMessage(downloadUrl, password, lang))}`}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => {
+              const text = encodeURIComponent(getWhatsAppMessage(downloadUrl, password, Language.EN));
+              window.open(`https://wa.me/?text=${text}`);
+            }}
             className="flex items-center justify-center
               group relative
               transition-all duration-200
@@ -281,18 +345,13 @@ function CompletedView({
               rounded-lg opacity-0 group-hover:opacity-100 shadow-lg
               transition-all duration-200 pointer-events-none z-20"
             >
-              {t.buttons.shareViaWhatsApp}
+              {translations.buttons.shareViaWhatsApp}
             </span>
-          </a>
-
+          </button>
+          
           {/* Copy Link */}
-          <button
-            onClick={() => {
-              navigator.clipboard.writeText(downloadUrl)
-                .then(() => {
-                  showSnackbar(t.success.linkCopied);
-                });
-            }}
+          <button 
+            onClick={handleCopyLink}
             className="flex items-center justify-center
               group relative
               transition-all duration-200
@@ -316,23 +375,22 @@ function CompletedView({
               rounded-lg opacity-0 group-hover:opacity-100 shadow-lg
               transition-all duration-200 pointer-events-none z-20"
             >
-              {t.buttons.copyFileLink}
+              {translations.buttons.copyFileLink}
             </span>
           </button>
         </div>
-
+        
         {/* Support Section with Indication */}
         <div className="mt-4 sm:mt-8 text-center space-y-2 sm:space-y-3 w-full px-0">
           <RichText
-            text={t.donation.supportMessage}
-            className={`text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center
-              ${lang === Language.AR ? 'dir-rtl' : 'dir-ltr'}`}
+            text={translations.donation.supportMessage}
+            className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center"
           />
-          <a
+          <a 
             href="https://pay.ziina.com/khourykarim"
-            target="_blank"
+            target="_blank" 
             rel="noopener noreferrer"
-            className={`w-full flex items-center justify-center
+            className="w-full flex items-center justify-center
               py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg
               bg-gradient-to-r from-orange-500/10 to-amber-500/10
               hover:from-orange-500/20 hover:to-amber-500/20
@@ -342,22 +400,19 @@ function CompletedView({
               font-medium text-sm
               transform transition-all duration-200
               hover:shadow-md hover:-translate-y-0.5
-              ${lang === Language.AR ? 'flex-row-reverse' : ''}
-              group`}
+              group"
           >
-            <span className={`text-lg group-hover:scale-110 transition-transform duration-200
-             ${lang === Language.AR ? 'ml-2' : 'mr-2'}`}
-            >
+            <span className="text-lg group-hover:scale-110 transition-transform duration-200 mr-2">
               ✨
             </span>
             <span className="truncate">
-              {t.donation.messages[Math.floor(Math.random() * t.donation.messages.length)]}
+              {translations.donation.messages[0]}
             </span>
           </a>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CompletedView 
+export default CompletedView; 
