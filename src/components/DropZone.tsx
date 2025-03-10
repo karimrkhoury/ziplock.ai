@@ -1,7 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
-import type { FileRejection } from 'react-dropzone';
-import { Language, translations } from '../i18n/translations';
+import { Language } from '../i18n/translations';
 
 interface DropZoneProps {
   onDrop: (acceptedFiles: File[]) => void;
@@ -19,9 +18,6 @@ const DropZone: React.FC<DropZoneProps> = ({
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [sizeError, setSizeError] = useState<string | null>(null);
-
-  const t = translations[lang];
 
   // Optimize file handling with useCallback to prevent unnecessary re-renders
   const handleDrop = useCallback((acceptedFiles: File[]) => {
@@ -45,8 +41,7 @@ const DropZone: React.FC<DropZoneProps> = ({
     getInputProps, 
     isDragActive,
     isDragAccept,
-    isDragReject,
-    open
+    isDragReject
   } = useDropzone({ 
     onDrop: handleDrop,
     maxSize,

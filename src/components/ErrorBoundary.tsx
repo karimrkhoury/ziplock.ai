@@ -1,105 +1,82 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
 import { Language } from '../i18n/translations';
 
 interface Props {
-  children: ReactNode;
+  children?: ReactNode;
   language: Language;
 }
 
 interface State {
   hasError: boolean;
   error: Error | null;
+  errorInfo: ErrorInfo | null;
 }
 
 class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      hasError: false,
-      error: null
-    };
-  }
-
-  static getDerivedStateFromError(error: Error): State {
-    return {
-      hasError: true,
-      error
-    };
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error('Error caught by ErrorBoundary:', error, errorInfo);
-    
-    // Clear localStorage if there's a JSON parse error
-    if (error.message.includes('JSON')) {
-      console.log('Clearing localStorage due to JSON error');
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('ziplock-')) {
-          localStorage.removeItem(key);
-        }
-      });
-    }
-  }
-
-  handleReset = () => {
-    // Clear localStorage and reload the page
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith('ziplock-')) {
-        localStorage.removeItem(key);
-      }
-    });
-    
-    // Reset error state
-    this.setState({
-      hasError: false,
-      error: null
-    });
-    
-    // Redirect to home page
-    window.location.href = '/';
+  public state: State = {
+    hasError: false,
+    error: null,
+    errorInfo: null
   };
 
-  render(): ReactNode {
-    const { hasError } = this.state;
-    const { children, language } = this.props;
+  public static getDerivedStateFromError(_: Error): State {
+    // Update state so the next render will show the fallback UI.
+    return { hasError: true, error: _, errorInfo: null };
+  }
 
-    if (hasError) {
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("Uncaught error:", error, errorInfo);
+    this.setState({
+      error: error,
+      errorInfo: errorInfo
+    });
+  }
+
+  public render() {
+    if (this.state.hasError) {
+      const isArabic = this.props.language === Language.AR;
+      
       return (
-        <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-[#fafafa] dark:bg-[#0d1117]">
-          <div className={`flex flex-col items-center justify-center min-h-[60vh] px-4
-            ${language === Language.AR ? 'font-arabic' : 'font-sans'}
-            ${language === Language.AR ? 'dir-rtl' : 'dir-ltr'}`}
+        <div className="flex flex-col items-center justify-center min-h-[60vh] p-4">
+          <div className="text-8xl mb-6">😵</div>
+          <h2 className={`text-2xl font-bold text-gray-900 dark:text-gray-100 text-center mb-4 ${isArabic ? 'font-arabic' : ''}`}>
+            {isArabic ? 'عذراً، حدث خطأ ما' : 'Oops, something went wrong'}
+          </h2>
+          <p className={`text-gray-600 dark:text-gray-400 text-center mb-6 ${isArabic ? 'font-arabic' : ''}`}>
+            {isArabic ? 'حدث خطأ غير متوقع. يرجى تحديث الصفحة والمحاولة مرة أخرى.' : 
+              'An unexpected error occurred. Please refresh the page and try again.'}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-blue-500/10 dark:bg-blue-400/10
+              text-blue-600 dark:text-blue-300 rounded-lg
+              hover:bg-blue-500/20 dark:hover:bg-blue-400/20
+              transition-all duration-200"
           >
-            <div className="text-8xl sm:text-9xl mb-6 animate-bounce-slow">
-              {language === Language.AR ? '😅' : '🫣'}
+            {isArabic ? 'تحديث الصفحة' : 'Refresh Page'}
+          </button>
+          
+          {/* Only show error details in development */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mt-8 w-full max-w-2xl mx-auto p-4 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-auto text-xs">
+              <details>
+                <summary className="cursor-pointer mb-2 text-gray-700 dark:text-gray-300 font-medium">
+                  Error Details (Development Only)
+                </summary>
+                <pre className="whitespace-pre-wrap text-red-600 dark:text-red-400">
+                  {this.state.error && this.state.error.toString()}
+                </pre>
+                <pre className="mt-2 whitespace-pre-wrap text-gray-600 dark:text-gray-400">
+                  {this.state.errorInfo && this.state.errorInfo.componentStack}
+                </pre>
+              </details>
             </div>
-            <h2 className={`text-2xl sm:text-3xl font-bold 
-              text-gray-900 dark:text-gray-100 
-              text-center mb-4
-              ${language === Language.AR ? 'font-ge-ss' : ''}`}
-            >
-              {language === Language.AR ? 'عذراً! حدث خطأ ما' : 'Oops! Something went wrong'}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 text-center mb-8">
-              {language === Language.AR 
-                ? 'نحن نعمل على إصلاح المشكلة. يرجى المحاولة مرة أخرى.' 
-                : 'We\'re working on fixing the issue. Please try again.'}
-            </p>
-            <button
-              onClick={this.handleReset}
-              className="mt-4 px-6 py-3 bg-blue-500/10 dark:bg-blue-400/10
-                text-blue-600 dark:text-blue-300 rounded-lg
-                hover:bg-blue-500/20 dark:hover:bg-blue-400/20
-                transition-all duration-200"
-            >
-              {language === Language.AR ? 'البدء من جديد ✨' : 'Start Fresh ✨'}
-            </button>
-          </div>
+          )}
         </div>
       );
     }
 
-    return children;
+    return this.props.children;
   }
 }
 

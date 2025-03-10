@@ -19,16 +19,20 @@ interface CompletedViewProps {
 // Helper functions for messages
 const getWhatsAppMessage = (downloadUrl: string, password: string, lang: Language) => {
   if (lang === Language.AR) {
-    return `ملفات مشفرة 🔒\nالرابط: ${downloadUrl}\nكلمة المرور: ${password}`;
+    // For Arabic, use RTL formatting with Unicode control characters
+    // RLM (Right-to-Left Mark): \u200F
+    // LRM (Left-to-Right Mark): \u200E
+    return `\u200F🔐 ملفات مشفرة بأمان! 🚀\u200F\n\n\u200F🔗 الرابط:\u200F \u200E${downloadUrl}\u200E\n\n\u200F🔑 كلمة المرور:\u200F \u200E${password}\u200E\n\n\u200F✨ تم إنشاؤها باستخدام ziplock.me - الطريقة الأسهل لمشاركة الملفات بأمان! 🔒\u200F`;
   }
-  return `Encrypted files 🔒\nLink: ${downloadUrl}\nPassword: ${password}`;
+  return `🔐 Securely encrypted files! 🚀\n\n🔗 Link: ${downloadUrl}\n\n🔑 Password: ${password}\n\n✨ Created with ziplock.me - the easiest way to share files securely! 🔒`;
 };
 
 const getEmailMessage = (downloadUrl: string, password: string, lang: Language) => {
   if (lang === Language.AR) {
-    return `مرحباً،\n\nإليك الملفات المشفرة:\n${downloadUrl}\n\nكلمة المرور: ${password}\n\nتم إنشاؤها باستخدام ziplock.me 🔒`;
+    // For Arabic, use RTL formatting with Unicode control characters
+    return `\u200Fمرحباً! 👋\u200F\n\n\u200F📦 إليك الملفات المشفرة التي طلبتها:\u200F\n\u200F🔗\u200F \u200E${downloadUrl}\u200E\n\n\u200F🔑 كلمة المرور:\u200F \u200E${password}\u200E\n\n\u200F⚠️ يرجى الاحتفاظ بكلمة المرور في مكان آمن - لا يمكن استردادها إذا فقدت!\u200F\n\n\u200F✨ تم إنشاؤها باستخدام ziplock.me 🔒 - الطريقة الأسهل لمشاركة الملفات بأمان!\u200F`;
   }
-  return `Hello,\n\nHere are your encrypted files:\n${downloadUrl}\n\nPassword: ${password}\n\nCreated with ziplock.me 🔒`;
+  return `Hello there! 👋\n\n📦 Here are your encrypted files:\n🔗 ${downloadUrl}\n\n🔑 Password: ${password}\n\n⚠️ Please keep this password safe - it cannot be recovered if lost!\n\n✨ Created with ziplock.me 🔒 - the easiest way to share files securely!`;
 };
 
 const CompletedView: React.FC<CompletedViewProps> = ({
@@ -288,8 +292,15 @@ const CompletedView: React.FC<CompletedViewProps> = ({
           {/* Email */}
           <button 
             onClick={() => {
-              const subject = encodeURIComponent("Files encrypted with ziplock.me 🔒");
-              const body = encodeURIComponent(getEmailMessage(downloadUrl, password, Language.EN));
+              const subject = encodeURIComponent(
+                translations.missionAccomplished.title.match(/[\u0600-\u06FF]/) !== null ? 
+                "✨ ملفات مشفرة عبر ziplock.me 🔒" : 
+                "🔒 Encrypted files via ziplock.me ✨"
+              );
+              const body = encodeURIComponent(getEmailMessage(downloadUrl, password, 
+                // Use the detected language for the message
+                translations.missionAccomplished.title.match(/[\u0600-\u06FF]/) !== null ? Language.AR : Language.EN
+              ));
               window.open(`mailto:?subject=${subject}&body=${body}`);
             }}
             className="flex items-center justify-center
@@ -322,7 +333,10 @@ const CompletedView: React.FC<CompletedViewProps> = ({
           {/* WhatsApp */}
           <button
             onClick={() => {
-              const text = encodeURIComponent(getWhatsAppMessage(downloadUrl, password, Language.EN));
+              const text = encodeURIComponent(getWhatsAppMessage(downloadUrl, password, 
+                // Use the detected language for the message
+                translations.missionAccomplished.title.match(/[\u0600-\u06FF]/) !== null ? Language.AR : Language.EN
+              ));
               window.open(`https://wa.me/?text=${text}`);
             }}
             className="flex items-center justify-center
