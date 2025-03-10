@@ -841,10 +841,11 @@ const App = () => {
                           {/* Tooltip - Only shows on hover when password is invalid */}
                           {(!password || password.length < 8) && (
                             <div className="absolute -top-14 left-1/2 -translate-x-1/2 
-                              px-4 py-2.5 text-xs font-medium w-max min-w-[240px] max-w-[280px] text-center leading-snug
+                              px-4 py-2.5 text-xs font-medium w-[240px] text-center leading-snug
                               bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 
                               rounded-lg opacity-0 group-hover:opacity-100 shadow-lg
-                              transition-all duration-200 pointer-events-none z-20"
+                              transition-all duration-200 pointer-events-none z-20
+                              whitespace-normal break-words"
                             >
                               {t.validation.passwordTip}
                             </div>
