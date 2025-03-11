@@ -18,27 +18,27 @@ interface CompletedViewProps {
 
 // Helper functions for messages
 const getWhatsAppMessage = (downloadUrl: string, password: string, lang: Language) => {
-  // Make sure downloadUrl is a complete URL
-  const fullUrl = downloadUrl.startsWith('http') ? downloadUrl : window.location.origin + downloadUrl;
+  // Fix URL formatting - ensure there's no double domain
+  const fullUrl = downloadUrl.includes('://') ? downloadUrl : `${window.location.origin}${downloadUrl.startsWith('/') ? '' : '/'}${downloadUrl}`;
   
   if (lang === Language.AR) {
     // For Arabic, use RTL formatting with Unicode control characters
     // RLM (Right-to-Left Mark): \u200F
     // LRM (Left-to-Right Mark): \u200E
-    return `\u200F🔐 ملفات مشفرة بأمان! 🚀\u200F\n\n\u200F🔗 الرابط:\u200F \u200E${fullUrl}\u200E\n\n\u200F🔑 كلمة المرور:\u200F \u200E${password}\u200E\n\n\u200F✨ تم إنشاؤها باستخدام ziplock.me - الطريقة الأسهل لمشاركة الملفات بأمان! 🔒\u200F`;
+    return `\u200F🔐 ملفات مشفرة بأمان! 🚀\u200F\n\n\u200Fالرابط:\u200F \u200E${fullUrl}\u200E\n\n\u200Fكلمة المرور:\u200F \u200E${password}\u200E\n\n\u200F✨ تم إنشاؤها باستخدام ziplock.me - الطريقة الأسهل لمشاركة الملفات بأمان! 🔒\u200F`;
   }
-  return `🔐 Securely encrypted files! 🚀\n\n🔗 Link: ${fullUrl}\n\n🔑 Password: ${password}\n\n✨ Created with ziplock.me - the easiest way to share files securely! 🔒`;
+  return `Securely encrypted files! 🚀\n\nLink: ${fullUrl}\n\nPassword: ${password}\n\nCreated with ziplock.me - the easiest way to share files securely!`;
 };
 
 const getEmailMessage = (downloadUrl: string, password: string, lang: Language) => {
-  // Make sure downloadUrl is a complete URL
-  const fullUrl = downloadUrl.startsWith('http') ? downloadUrl : window.location.origin + downloadUrl;
+  // Fix URL formatting - ensure there's no double domain
+  const fullUrl = downloadUrl.includes('://') ? downloadUrl : `${window.location.origin}${downloadUrl.startsWith('/') ? '' : '/'}${downloadUrl}`;
   
   if (lang === Language.AR) {
     // For Arabic, use RTL formatting with Unicode control characters
-    return `\u200Fمرحباً! 👋\u200F\n\n\u200F📦 إليك الملفات المشفرة التي طلبتها:\u200F\n\u200F🔗\u200F \u200E${fullUrl}\u200E\n\n\u200F🔑 كلمة المرور:\u200F \u200E${password}\u200E\n\n\u200F⚠️ يرجى الاحتفاظ بكلمة المرور في مكان آمن - لا يمكن استردادها إذا فقدت!\u200F\n\n\u200F✨ تم إنشاؤها باستخدام ziplock.me 🔒 - الطريقة الأسهل لمشاركة الملفات بأمان!\u200F`;
+    return `\u200Fمرحباً! 👋\u200F\n\n\u200Fإليك الملفات المشفرة التي طلبتها:\u200F\n\u200Fالرابط:\u200F \u200E${fullUrl}\u200E\n\n\u200Fكلمة المرور:\u200F \u200E${password}\u200E\n\n\u200F⚠️ يرجى الاحتفاظ بكلمة المرور في مكان آمن - لا يمكن استردادها إذا فقدت!\u200F\n\n\u200F✨ تم إنشاؤها باستخدام ziplock.me - الطريقة الأسهل لمشاركة الملفات بأمان!\u200F`;
   }
-  return `Hello there! 👋\n\n📦 Here are your encrypted files:\n🔗 ${fullUrl}\n\n🔑 Password: ${password}\n\n⚠️ Please keep this password safe - it cannot be recovered if lost!\n\n✨ Created with ziplock.me 🔒 - the easiest way to share files securely!`;
+  return `Hello there!\n\nHere are your encrypted files:\nLink: ${fullUrl}\n\nPassword: ${password}\n\nPlease keep this password safe - it cannot be recovered if lost!\n\nCreated with ziplock.me - the easiest way to share files securely!`;
 };
 
 const CompletedView: React.FC<CompletedViewProps> = ({
