@@ -191,7 +191,9 @@ const App = ({ onLanguageChange }: { onLanguageChange?: (lang: Language) => void
       }
       
       setIsCompleted(true);
-      setDownloadUrl(`${import.meta.env.VITE_DOWNLOAD_URL}/${fileId}`);
+      // Make sure the VITE_DOWNLOAD_URL is defined before using it
+      const baseUrl = import.meta.env.VITE_DOWNLOAD_URL || 'https://ziplock.me/d';
+      setDownloadUrl(`${baseUrl}/${fileId}`);
       
       // Try to get saved data from localStorage for this file
       try {

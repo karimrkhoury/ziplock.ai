@@ -18,27 +18,29 @@ interface CompletedViewProps {
 
 // Helper functions for messages
 const getWhatsAppMessage = (downloadUrl: string, password: string, lang: Language) => {
-  // Ensure we have a valid URL by using the full window.location.href if downloadUrl is not set
-  const fullUrl = downloadUrl || window.location.href;
+  // Use the provided downloadUrl directly - it should be properly formatted from App.tsx
+  // If it's not available, use the current URL as fallback
+  const shareUrl = downloadUrl || window.location.href;
   
   if (lang === Language.AR) {
     // For Arabic, use RTL formatting with Unicode control characters
     // RLM (Right-to-Left Mark): \u200F
     // LRM (Left-to-Right Mark): \u200E
-    return `\u200Fملفات مشفرة بأمان!\u200F\n\n\u200Fالرابط:\u200F \u200E${fullUrl}\u200E\n\n\u200Fكلمة المرور:\u200F \u200E${password}\u200E\n\n\u200Fتم إنشاؤها باستخدام ziplock.me\u200F`;
+    return `\u200Fملفات مشفرة بأمان!\u200F\n\n\u200Fالرابط:\u200F \u200E${shareUrl}\u200E\n\n\u200Fكلمة المرور:\u200F \u200E${password}\u200E\n\n\u200Fتم إنشاؤها باستخدام ziplock.me\u200F`;
   }
-  return `Securely encrypted files!\n\nLink: ${fullUrl}\n\nPassword: ${password}\n\nCreated with ziplock.me`;
+  return `Securely encrypted files!\n\nLink: ${shareUrl}\n\nPassword: ${password}\n\nCreated with ziplock.me`;
 };
 
 const getEmailMessage = (downloadUrl: string, password: string, lang: Language) => {
-  // Ensure we have a valid URL by using the full window.location.href if downloadUrl is not set
-  const fullUrl = downloadUrl || window.location.href;
+  // Use the provided downloadUrl directly - it should be properly formatted from App.tsx
+  // If it's not available, use the current URL as fallback
+  const shareUrl = downloadUrl || window.location.href;
   
   if (lang === Language.AR) {
     // For Arabic, use RTL formatting with Unicode control characters
-    return `\u200Fمرحباً!\u200F\n\n\u200Fإليك الملفات المشفرة التي طلبتها:\u200F\n\u200Fالرابط:\u200F \u200E${fullUrl}\u200E\n\n\u200Fكلمة المرور:\u200F \u200E${password}\u200E\n\n\u200Fيرجى الاحتفاظ بكلمة المرور في مكان آمن - لا يمكن استردادها إذا فقدت!\u200F\n\n\u200Fتم إنشاؤها باستخدام ziplock.me\u200F`;
+    return `\u200Fمرحباً!\u200F\n\n\u200Fإليك الملفات المشفرة التي طلبتها:\u200F\n\u200Fالرابط:\u200F \u200E${shareUrl}\u200E\n\n\u200Fكلمة المرور:\u200F \u200E${password}\u200E\n\n\u200Fيرجى الاحتفاظ بكلمة المرور في مكان آمن - لا يمكن استردادها إذا فقدت!\u200F\n\n\u200Fتم إنشاؤها باستخدام ziplock.me\u200F`;
   }
-  return `Hello there!\n\nHere are your encrypted files:\nLink: ${fullUrl}\n\nPassword: ${password}\n\nPlease keep this password safe - it cannot be recovered if lost!\n\nCreated with ziplock.me`;
+  return `Hello there!\n\nHere are your encrypted files:\nLink: ${shareUrl}\n\nPassword: ${password}\n\nPlease keep this password safe - it cannot be recovered if lost!\n\nCreated with ziplock.me`;
 };
 
 const CompletedView: React.FC<CompletedViewProps> = ({
@@ -131,7 +133,8 @@ const CompletedView: React.FC<CompletedViewProps> = ({
 
   // Handle copy to clipboard
   const handleCopyLink = () => {
-    // Use the downloadUrl if available, otherwise use the current URL
+    // Use the downloadUrl directly - it should be properly formatted from App.tsx
+    // If it's not available, use the current URL as fallback
     const linkToCopy = downloadUrl || window.location.href;
     
     navigator.clipboard.writeText(linkToCopy)
@@ -303,8 +306,8 @@ const CompletedView: React.FC<CompletedViewProps> = ({
             onClick={() => {
               const subject = encodeURIComponent(
                 translations.missionAccomplished.title.match(/[\u0600-\u06FF]/) !== null ? 
-                "✨ ملفات مشفرة عبر ziplock.me 🔒" : 
-                "🔒 Encrypted files via ziplock.me ✨"
+                "ملفات مشفرة عبر ziplock.me" : 
+                "Encrypted files via ziplock.me"
               );
               const body = encodeURIComponent(getEmailMessage(downloadUrl, password, 
                 // Use the detected language for the message
