@@ -358,8 +358,9 @@ const CompletedView: React.FC<CompletedViewProps> = ({
                 }
                 
                 // Use the WhatsApp API with the encoded text
+                // Using wa.me instead of api.whatsapp.com for better mobile compatibility
                 const encodedText = encodeURIComponent(whatsappText);
-                window.open(`https://api.whatsapp.com/send?text=${encodedText}`);
+                window.open(`https://wa.me/?text=${encodedText}`, '_blank');
               } catch (error) {
                 console.error('WhatsApp sharing error:', error);
                 // Fallback to clipboard if sharing fails
